@@ -109,6 +109,7 @@ Private Sub btnback_Click
 	Activity.Finish
 End Sub
 
-Private Sub lblsavechanges_Click
+Private Sub btnsavechanges_Click
+	ToastMessageShow("Changes saved.", False)
 	Activity.Finish
 End Sub

@@ -85,3 +85,7 @@ Private Sub btnlogout_Click
 	StartActivity(Main)
 	Activity.Finish
 End Sub
+
+Private Sub btnback_Click
+	Activity.Finish
+End Sub
