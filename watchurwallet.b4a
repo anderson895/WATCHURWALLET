@@ -450,8 +450,30 @@ Sub EnsureSchema
 	sql.ExecNonQuery("CREATE TABLE IF NOT EXISTS tblsplit (split_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, category TEXT, persons INTEGER, bill REAL, share REAL, date TEXT)")
 
 	AddColumnIfMissing("tblallowance", "username", "TEXT")
+	AddColumnIfMissing("tblallowance", "amount", "REAL")
+	AddColumnIfMissing("tblallowance", "date", "TEXT")
+
 	AddColumnIfMissing("tbltransac", "username", "TEXT")
+	AddColumnIfMissing("tbltransac", "type", "TEXT")
+	AddColumnIfMissing("tbltransac", "amount", "REAL")
+	AddColumnIfMissing("tbltransac", "date", "TEXT")
+
 	AddColumnIfMissing("tblgoal", "username", "TEXT")
+	AddColumnIfMissing("tblgoal", "category", "TEXT")
+	AddColumnIfMissing("tblgoal", "goal_amount", "REAL")
+	AddColumnIfMissing("tblgoal", "current_amount", "REAL DEFAULT 0")
+
+	AddColumnIfMissing("tblexpenses", "username", "TEXT")
+	AddColumnIfMissing("tblexpenses", "category", "TEXT")
+	AddColumnIfMissing("tblexpenses", "amount", "REAL")
+	AddColumnIfMissing("tblexpenses", "date", "TEXT")
+
+	AddColumnIfMissing("tblsplit", "username", "TEXT")
+	AddColumnIfMissing("tblsplit", "category", "TEXT")
+	AddColumnIfMissing("tblsplit", "persons", "INTEGER")
+	AddColumnIfMissing("tblsplit", "bill", "REAL")
+	AddColumnIfMissing("tblsplit", "share", "REAL")
+	AddColumnIfMissing("tblsplit", "date", "TEXT")
 End Sub
 
 Sub AddColumnIfMissing(table As String, col As String, decl As String)
