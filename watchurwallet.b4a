@@ -393,8 +393,32 @@ Sub Activity_Create(FirstTime As Boolean)
 		CopyDB
 		sql.Initialize(File.DirInternal, "saddbb.db", False)
 		EnsureSchema
+		ExportDBToSharedStorage
 	End If
 	Activity.LoadLayout("loginlayout")
+End Sub
+
+' DEBUG: Copy the live DB to common shared-storage paths so it shows up in Windows.
+' Try multiple known locations because BlueStacks shared folder differs per version.
+Sub ExportDBToSharedStorage
+	Dim targets() As String = Array As String( _
+		"/sdcard", _
+		"/storage/emulated/0", _
+		"/sdcard/Download", _
+		"/storage/emulated/0/Download", _
+		"/sdcard/windows/BstSharedFolder", _
+		"/mnt/windows/BstSharedFolder")
+
+	For i = 0 To targets.Length - 1
+		Try
+			If File.Exists(targets(i), "") Then
+				File.Copy(File.DirInternal, "saddbb.db", targets(i), "saddbb_export.db")
+				Log("DB exported to " & targets(i) & "/saddbb_export.db")
+			End If
+		Catch
+			Log("Export to " & targets(i) & " failed: " & LastException.Message)
+		End Try
+	Next
 End Sub
 
 Sub Activity_Resume
