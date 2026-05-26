@@ -159,6 +159,10 @@ Private Sub btnevensplit_Click
 		"INSERT INTO tblsplit (username, category, persons, bill, share, date) VALUES (?, ?, ?, ?, ?, ?)", _
 		Array As Object(Main.usernamee, Category, Persons, TotalBill, Share, today))
 
+	sql.ExecNonQuery2( _
+		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+		Array As Object("Split - " & Category & " (" & Persons & " pax)", Share, today, Main.usernamee))
+
 	ToastMessageShow("Bill successfully split.", False)
 
 	txtsplitbill.Text = ""

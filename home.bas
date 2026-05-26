@@ -157,9 +157,15 @@ Private Sub btnacceptgoal_Click
 		Return
 	End If
 
+	Dim today As String = DateTime.Date(DateTime.Now)
+
 	sql.ExecNonQuery2( _
 		"INSERT INTO tblgoal (category, goal_amount, current_amount, username) VALUES (?, ?, ?, ?)", _
 		Array As Object(txtgoal.Text, target, 0, Main.usernamee))
+
+	sql.ExecNonQuery2( _
+		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+		Array As Object("Goal Set - " & txtgoal.Text, target, today, Main.usernamee))
 
 	ToastMessageShow("Goal saved: " & txtgoal.Text, False)
 	txtgoal.Text = ""

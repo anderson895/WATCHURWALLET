@@ -67,9 +67,18 @@ Private Sub lvGoals_ItemClick (Position As Int, Value As Object)
 		Dim res As Int = inpdlg.Show("Amount to add to current progress:", "Add Progress", "OK", "Cancel", "", Null)
 		If res = DialogResponse.POSITIVE And IsNumber(inpdlg.Input) Then
 			Dim addAmt As Double = inpdlg.Input
+
+			Dim cat As String = GoalCategory(gid)
+			Dim today As String = DateTime.Date(DateTime.Now)
+
 			sql.ExecNonQuery2( _
 				"UPDATE tblgoal SET current_amount = current_amount + ? WHERE goal_id=? AND username=?", _
 				Array As Object(addAmt, gid, Main.usernamee))
+
+			sql.ExecNonQuery2( _
+				"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+				Array As Object("Goal Progress - " & cat, addAmt, today, Main.usernamee))
+
 			ToastMessageShow("Progress added.", False)
 			LoadGoals
 		End If
@@ -80,6 +89,20 @@ Private Sub lvGoals_ItemClick (Position As Int, Value As Object)
 		ToastMessageShow("Goal deleted.", False)
 		LoadGoals
 	End If
+End Sub
+
+Sub GoalCategory(gid As Int) As String
+	Dim c As Cursor
+	c = sql.ExecQuery2( _
+		"SELECT category FROM tblgoal WHERE goal_id=? AND username=?", _
+		Array As String(gid, Main.usernamee))
+	Dim cat As String = ""
+	If c.RowCount > 0 Then
+		c.Position = 0
+		cat = c.GetString2(0)
+	End If
+	c.Close
+	Return cat
 End Sub
 
 Private Sub btnback_Click
