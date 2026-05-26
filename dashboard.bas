@@ -78,51 +78,5 @@ Private Sub btnaccount_Click
 End Sub
 
 Private Sub btnExportDB_Click
-	Dim sourcePath As String = File.Combine(File.DirInternal, "saddbb.db")
-	Dim sourceSize As Long = 0
-
-	If File.Exists(File.DirInternal, "saddbb.db") Then
-		sourceSize = File.Size(File.DirInternal, "saddbb.db")
-	End If
-
-	Dim attempts() As String = Array As String( _
-		"/sdcard/Download", _
-		"/storage/emulated/0/Download", _
-		"/sdcard", _
-		"/storage/emulated/0", _
-		"/sdcard/windows/BstSharedFolder", _
-		"/mnt/windows/BstSharedFolder")
-
-	Dim successPath As String = ""
-	Dim failures As String = ""
-
-	For i = 0 To attempts.Length - 1
-		Try
-			If File.Exists(attempts(i), "") Then
-				File.Copy(File.DirInternal, "saddbb.db", attempts(i), "saddbb_export.db")
-				If successPath = "" Then successPath = attempts(i) & "/saddbb_export.db"
-				Log("Exported to: " & attempts(i))
-			Else
-				failures = failures & attempts(i) & " (not found)" & CRLF
-			End If
-		Catch
-			failures = failures & attempts(i) & " (error: " & LastException.Message & ")" & CRLF
-		End Try
-	Next
-
-	Dim msg As String
-	msg = "Source DB path:" & CRLF & sourcePath & CRLF & _
-		"Size: " & sourceSize & " bytes" & CRLF & CRLF
-
-	If successPath <> "" Then
-		msg = msg & "Exported successfully to:" & CRLF & successPath & CRLF & CRLF & _
-			"To get this file on Windows:" & CRLF & _
-			"1. Open 'Files by Google' app in BlueStacks" & CRLF & _
-			"2. Navigate to Downloads folder" & CRLF & _
-			"3. Long-press saddbb_export.db -> Share -> save to BlueStacks shared folder"
-	Else
-		msg = msg & "Export FAILED to all locations:" & CRLF & failures
-	End If
-
-	Msgbox(msg, "Database Export")
+	Main.ExportDBAndShowDialog(True)
 End Sub

@@ -33,6 +33,7 @@ Sub Activity_Create(FirstTime As Boolean)
 
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
+	AddExportButtonToMenu
 
 	txttotweekexp.Enabled = False
 
@@ -89,6 +90,20 @@ Sub LoadSplits
 			NumberFormat(c.GetDouble2(3), 1, 2) & " each")
 	Next
 	c.Close
+End Sub
+
+Sub AddExportButtonToMenu
+	Dim btn As Button
+	btn.Initialize("ExportDB")
+	btn.Text = "Export DB"
+	btn.TextSize = 14
+	btn.TextColor = Colors.White
+	btn.Color = Colors.RGB(40, 120, 180)
+	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
+End Sub
+
+Private Sub ExportDB_Click
+	Main.ExportDBAndShowDialog(True)
 End Sub
 
 Sub LoadSpinnerCategories

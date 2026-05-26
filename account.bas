@@ -30,9 +30,24 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("layaccount")
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
+	AddExportButtonToMenu
 	lblfullname.Text = Main.fname & " " & Main.lname
 	lblusername.Text = Main.usernamee
 	lblemail.Text = Main.email
+End Sub
+
+Sub AddExportButtonToMenu
+	Dim btn As Button
+	btn.Initialize("ExportDB")
+	btn.Text = "Export DB"
+	btn.TextSize = 14
+	btn.TextColor = Colors.White
+	btn.Color = Colors.RGB(40, 120, 180)
+	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
+End Sub
+
+Private Sub ExportDB_Click
+	Main.ExportDBAndShowDialog(True)
 End Sub
 
 Sub Activity_Resume
@@ -99,6 +114,35 @@ End Sub
 
 Private Sub btneditexpenses_Click
 	StartActivity(editexpenses)
+End Sub
+
+' Best-effort handlers for the other edit buttons.
+' Button1 is the generic-named button from the designer (likely "Edit Goals/Saving"
+' or the small edit-profile icon near the user's name). If it goes to the wrong
+' place, we'll need the actual control name from the .bal layout to disambiguate.
+Private Sub Button1_Click
+	StartActivity(editgoals)
+End Sub
+
+' Common alternate names in case the designer uses them.
+Private Sub btneditgoals_Click
+	StartActivity(editgoals)
+End Sub
+
+Private Sub btneditgoal_Click
+	StartActivity(editgoals)
+End Sub
+
+Private Sub btneditprofile_Click
+	StartActivity(myacc)
+End Sub
+
+Private Sub btnedit_Click
+	StartActivity(myacc)
+End Sub
+
+Private Sub lblfullname_Click
+	StartActivity(myacc)
 End Sub
 
 Sub LoadHistory

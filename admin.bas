@@ -18,6 +18,7 @@ Sub Globals
 	Private B4XTable1 As B4XTable
 	Private btnDelete As Button
 	Private btnUpdate As Button
+	Private btnExportDB As Button
 	Dim inpdlg As InputDialog
 End Sub
 
@@ -33,7 +34,16 @@ Sub Activity_Create(FirstTime As Boolean)
 	B4XTable1.AddColumn("Email", B4XTable1.COLUMN_TYPE_TEXT)
 	B4XTable1.AddColumn("Password", B4XTable1.COLUMN_TYPE_TEXT)
 
+	btnExportDB.Initialize("btnExportDB")
+	btnExportDB.Text = "Export Database"
+	btnExportDB.TextSize = 14
+	Activity.AddView(btnExportDB, 16dip, 100%y - 60dip, 100%x - 32dip, 44dip)
+
 	ShowUsers
+End Sub
+
+Private Sub btnExportDB_Click
+	Main.ExportDBAndShowDialog(True)
 End Sub
 
 Sub Activity_Resume

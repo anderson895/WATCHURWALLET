@@ -40,6 +40,7 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("layhome")
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
+	AddExportButtonToMenu
 
 	If ExpenseList.IsInitialized = False Then
 		ExpenseList.Initialize
@@ -177,6 +178,20 @@ Private Sub txtallowance_TextChanged (Old As String, New As String)
 	If New = "" Then
 		Return
 	End If
+End Sub
+
+Sub AddExportButtonToMenu
+	Dim btn As Button
+	btn.Initialize("ExportDB")
+	btn.Text = "Export DB"
+	btn.TextSize = 14
+	btn.TextColor = Colors.White
+	btn.Color = Colors.RGB(40, 120, 180)
+	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
+End Sub
+
+Private Sub ExportDB_Click
+	Main.ExportDBAndShowDialog(True)
 End Sub
 
 Sub ReloadFromDB
