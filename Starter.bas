@@ -41,6 +41,11 @@ End Sub
 ' Exports the COMPLETE live SQLite database file (all tables, all rows) to shared storage.
 ' Callable from any activity via: Starter.ExportDBAndShowDialog(True)
 Public Sub ExportDBAndShowDialog(showDialog As Boolean)
+	' STEP 1: Flush any pending WAL transactions into the main .db file so the
+	' copy isn't an empty / outdated snapshot. Without this, recent inserts may
+	' still live in saddbb.db-wal and the exported file will look empty.
+	FlushWAL
+
 	Dim sourcePath As String = File.Combine(File.DirInternal, "saddbb.db")
 	Dim sourceSize As Long = 0
 	If File.Exists(File.DirInternal, "saddbb.db") Then
@@ -63,7 +68,16 @@ Public Sub ExportDBAndShowDialog(showDialog As Boolean)
 	For i = 0 To targets.Length - 1
 		Try
 			If File.Exists(targets(i), "") Then
+				' Copy the main DB file.
 				File.Copy(File.DirInternal, "saddbb.db", targets(i), outName)
+
+				' Belt-and-suspenders: also copy any -wal/-shm sidecars in case
+				' the checkpoint didn't fully clear them. DB Browser can open
+				' the main file alongside these.
+				CopyIfExists(targets(i), "saddbb.db-wal", outName & "-wal")
+				CopyIfExists(targets(i), "saddbb.db-shm", outName & "-shm")
+				CopyIfExists(targets(i), "saddbb.db-journal", outName & "-journal")
+
 				If successPath = "" Then successPath = targets(i) & "/" & outName
 				Log("DB exported to " & targets(i) & "/" & outName)
 			Else
@@ -77,6 +91,31 @@ Public Sub ExportDBAndShowDialog(showDialog As Boolean)
 	If showDialog Then
 		Msgbox(BuildExportSummary(sourcePath, sourceSize, successPath, failures), "SQLite DB Exported")
 	End If
+End Sub
+
+' Force any uncommitted WAL pages to be merged into the main .db file.
+Sub FlushWAL
+	Try
+		Main.sql.ExecNonQuery("PRAGMA wal_checkpoint(TRUNCATE)")
+		Log("WAL checkpoint OK")
+	Catch
+		' Fall back to a plain checkpoint if TRUNCATE not supported.
+		Try
+			Main.sql.ExecNonQuery("PRAGMA wal_checkpoint(FULL)")
+		Catch
+			Log("WAL checkpoint failed: " & LastException.Message)
+		End Try
+	End Try
+End Sub
+
+Sub CopyIfExists(targetDir As String, srcName As String, dstName As String)
+	Try
+		If File.Exists(File.DirInternal, srcName) Then
+			File.Copy(File.DirInternal, srcName, targetDir, dstName)
+		End If
+	Catch
+		Log("Sidecar copy " & srcName & " failed: " & LastException.Message)
+	End Try
 End Sub
 
 Sub BuildExportSummary(sourcePath As String, sourceSize As Long, successPath As String, failures As String) As String
