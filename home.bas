@@ -70,6 +70,31 @@ Sub Activity_Create(FirstTime As Boolean)
 	txtamountgoal.Background = Null
 
 	txtstudentsname.Text = Main.fname & " " & Main.lname
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Dim w As Int = 100%x
+	Dim pad As Int = 16dip
+	Dim contentW As Int = w - pad * 2
+
+	txtstudentsname.Left = pad : txtstudentsname.Width = contentW
+	txtdate.Left = pad : txtdate.Width = contentW
+	txtallowance.Left = pad : txtallowance.Width = contentW
+	txtspent.Left = pad : txtspent.Width = contentW
+	txtbalance.Left = pad : txtbalance.Width = contentW
+	spinnercategory.Left = pad : spinnercategory.Width = contentW
+	txtamountexpenses.Left = pad : txtamountexpenses.Width = contentW
+	txtgoal.Left = pad : txtgoal.Width = contentW
+	txtamountgoal.Left = pad : txtamountgoal.Width = contentW
+
+	btnacceptexpenses.Width = 60%x
+	btnacceptexpenses.Left = (w - btnacceptexpenses.Width) / 2
+	btnacceptgoal.Width = 60%x
+	btnacceptgoal.Left = (w - btnacceptgoal.Width) / 2
+
+	pnlmenu.Width = 70%x
+	pnlmenu.Height = 100%y
 End Sub
 
 Sub Activity_Resume

@@ -41,6 +41,27 @@ Sub Activity_Create(FirstTime As Boolean)
 
 	txtsplitbill.Background = Null
 	txtsplitwith.Background = Null
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Dim w As Int = 100%x
+	Dim pad As Int = 16dip
+	Dim contentW As Int = w - pad * 2
+
+	txttotweekexp.Left = pad : txttotweekexp.Width = contentW
+	spinnergroup.Left = pad : spinnergroup.Width = contentW
+	txtsplitbill.Left = pad : txtsplitbill.Width = contentW
+	txtsplitwith.Left = pad : txtsplitwith.Width = contentW
+
+	btnevensplit.Width = 60%x
+	btnevensplit.Left = (w - btnevensplit.Width) / 2
+
+	listexpenses.Left = pad : listexpenses.Width = contentW
+	listsplit.Left = pad : listsplit.Width = contentW
+
+	pnlmenu.Width = 70%x
+	pnlmenu.Height = 100%y
 End Sub
 
 Sub Activity_Resume

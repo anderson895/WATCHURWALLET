@@ -27,6 +27,18 @@ Sub Activity_Create(FirstTime As Boolean)
 	sql = Main.sql
 
 	LoadAccountInfo
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Dim w As Int = 100%x
+	Dim pad As Int = 16dip
+	Dim contentW As Int = w - pad * 2
+
+	txtusername.Left = pad : txtusername.Width = contentW
+	txtfname.Left = pad : txtfname.Width = contentW
+	txtlname.Left = pad : txtlname.Width = contentW
+	txtemail.Left = pad : txtemail.Width = contentW
 End Sub
 
 Sub Activity_Resume

@@ -34,6 +34,24 @@ Sub Activity_Create(FirstTime As Boolean)
 	lblfullname.Text = Main.fname & " " & Main.lname
 	lblusername.Text = Main.usernamee
 	lblemail.Text = Main.email
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Dim w As Int = 100%x
+	Dim pad As Int = 16dip
+
+	lblfullname.Left = pad : lblfullname.Width = w - pad * 2
+	lblusername.Left = pad : lblusername.Width = w - pad * 2
+	lblemail.Left = pad : lblemail.Width = w - pad * 2
+
+	EditText1.Left = pad : EditText1.Width = w - pad * 2
+
+	ListView1.Left = pad : ListView1.Width = w - pad * 2
+	ListView1.Height = 100%y - ListView1.Top - pad
+
+	pnlmenu.Width = 70%x
+	pnlmenu.Height = 100%y
 End Sub
 
 Sub AddExportButtonToMenu

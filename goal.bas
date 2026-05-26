@@ -28,6 +28,23 @@ Sub Activity_Create(FirstTime As Boolean)
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
 	AddExportButtonToMenu
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Dim w As Int = 100%x
+	Dim pad As Int = 16dip
+	Dim contentW As Int = w - pad * 2
+
+	txtgoalcategory1.Left = pad : txtgoalcategory1.Width = contentW
+	txtaddedgoal1.Left = pad : txtaddedgoal1.Width = contentW
+	ProgressBar1.Left = pad : ProgressBar1.Width = contentW
+
+	btnaddgoal.Width = 60%x
+	btnaddgoal.Left = (w - btnaddgoal.Width) / 2
+
+	pnlmenu.Width = 70%x
+	pnlmenu.Height = 100%y
 End Sub
 
 Sub AddExportButtonToMenu
