@@ -94,17 +94,31 @@ Public Sub ExportDBAndShowDialog(showDialog As Boolean)
 End Sub
 
 ' Force any uncommitted WAL pages to be merged into the main .db file.
+' Android SQLite requires PRAGMAs that return rows to go through ExecQuery,
+' not ExecNonQuery.
 Sub FlushWAL
 	Try
-		Main.sql.ExecNonQuery("PRAGMA wal_checkpoint(TRUNCATE)")
-		Log("WAL checkpoint OK")
+		Dim c As Cursor = Main.sql.ExecQuery("PRAGMA wal_checkpoint(TRUNCATE)")
+		c.Close
+		Log("WAL checkpoint TRUNCATE OK")
 	Catch
-		' Fall back to a plain checkpoint if TRUNCATE not supported.
 		Try
-			Main.sql.ExecNonQuery("PRAGMA wal_checkpoint(FULL)")
+			Dim c2 As Cursor = Main.sql.ExecQuery("PRAGMA wal_checkpoint(FULL)")
+			c2.Close
+			Log("WAL checkpoint FULL OK")
 		Catch
 			Log("WAL checkpoint failed: " & LastException.Message)
 		End Try
+	End Try
+
+	' Also switch to journal_mode=DELETE momentarily, which forces a hard merge
+	' of WAL into the main file. This guarantees the exported .db is complete.
+	Try
+		Dim c3 As Cursor = Main.sql.ExecQuery("PRAGMA journal_mode=DELETE")
+		c3.Close
+		Log("journal_mode set to DELETE (forced WAL flush)")
+	Catch
+		Log("journal_mode switch failed: " & LastException.Message)
 	End Try
 End Sub
 
