@@ -41,7 +41,7 @@ Sub AddExportButtonToMenu
 End Sub
 
 Private Sub ExportDB_Click
-	Main.ExportDBAndShowDialog(True)
+	Starter.ExportDBAndShowDialog(True)
 End Sub
 
 Sub Activity_Resume

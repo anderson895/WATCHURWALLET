@@ -43,7 +43,7 @@ Sub Activity_Create(FirstTime As Boolean)
 End Sub
 
 Private Sub btnExportDB_Click
-	Main.ExportDBAndShowDialog(True)
+	Starter.ExportDBAndShowDialog(True)
 End Sub
 
 Sub Activity_Resume
