@@ -162,7 +162,7 @@ Sub BuildSideNav
 	btn.TextSize = 14
 	btn.TextColor = Colors.White
 	btn.Color = Colors.RGB(40, 120, 180)
-	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
+	pnlmenu.AddView(btn, 16dip, 100%y - 70dip, pnlmenu.Width - 32dip, 48dip)
 End Sub
 
 Sub AddMenuButton(x As Int, y As Int, color As Int)
@@ -216,6 +216,7 @@ Sub StyleButton(btn As Button, text As String, color As Int)
 End Sub
 
 Sub Activity_Resume
+	sql = Main.sql
 	ReloadFromDB
 End Sub
 
