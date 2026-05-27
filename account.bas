@@ -90,6 +90,11 @@ Sub BuildScreen
 	If lvH < 100dip Then lvH = 100dip
 
 	ListView1.Initialize("")
+	ListView1.SingleLineLayout.ItemHeight = 56dip
+	ListView1.SingleLineLayout.Label.TextSize = 14
+	ListView1.SingleLineLayout.Label.TextColor = Colors.Black
+	ListView1.SingleLineLayout.Label.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
+	ListView1.SingleLineLayout.Label.Padding = Array As Int(14dip, 0, 14dip, 0)
 	Activity.AddView(ListView1, pad, y, contentW, lvH)
 
 	Dim btnEditExp As Button
@@ -202,6 +207,9 @@ Private Sub ExportDB_Click
 End Sub
 
 Sub Activity_Resume
+	' Refresh sql in case the connection was reinitialized
+	' (e.g. after Export DB closed/reopened the connection).
+	sql = Main.sql
 	LoadHistory
 End Sub
 
@@ -248,15 +256,36 @@ Private Sub btnsetallowance_Click
 		Return
 	End If
 
+	If Main.usernamee = "" Then
+		ToastMessageShow("Not logged in.", True)
+		Return
+	End If
+
+	' Ensure a live connection. Export DB closes/reopens Main.sql,
+	' which can leave our local reference pointing at a stale handle.
+	sql = Main.sql
+
 	Dim today As String = DateTime.Date(DateTime.Now)
 
-	sql.ExecNonQuery2( _
-		"INSERT INTO tblallowance (amount, date, username) VALUES (?, ?, ?)", _
-		Array As Object(allowanceAmount, today, Main.usernamee))
+	Try
+		sql.ExecNonQuery2( _
+			"INSERT INTO tblallowance (amount, date, username) VALUES (?, ?, ?)", _
+			Array As Object(allowanceAmount, today, Main.usernamee))
+		Log("INSERT tblallowance OK for " & Main.usernamee & " amount=" & allowanceAmount)
+	Catch
+		Log("INSERT tblallowance FAILED: " & LastException.Message)
+		ToastMessageShow("Save failed: " & LastException.Message, True)
+		Return
+	End Try
 
-	sql.ExecNonQuery2( _
-		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
-		Array As Object("Allowance", allowanceAmount, today, Main.usernamee))
+	Try
+		sql.ExecNonQuery2( _
+			"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+			Array As Object("Allowance", allowanceAmount, today, Main.usernamee))
+		Log("INSERT tbltransac OK")
+	Catch
+		Log("INSERT tbltransac FAILED: " & LastException.Message)
+	End Try
 
 	LoadHistory
 	ToastMessageShow("Allowance Set: " & NumberFormat(allowanceAmount, 1, 2), False)
@@ -276,15 +305,23 @@ Private Sub btneditgoals_Click
 End Sub
 
 Sub LoadHistory
-	Dim c1 As Cursor
-	c1 = sql.ExecQuery2( _
-		"SELECT type, amount, date FROM tbltransac WHERE username=? ORDER BY transac_id DESC", _
-		Array As String(Main.usernamee))
+	sql = Main.sql
 	ListView1.Clear
-	For i = 0 To c1.RowCount - 1
-		c1.Position = i
-		ListView1.AddSingleLine( _
-			c1.GetString2(0) & ": " & NumberFormat(c1.GetDouble2(1), 1, 2) & " on " & c1.GetString2(2))
-	Next
-	c1.Close
+
+	Try
+		Dim c1 As Cursor
+		c1 = sql.ExecQuery2( _
+			"SELECT type, amount, date FROM tbltransac WHERE username=? ORDER BY transac_id DESC", _
+			Array As String(Main.usernamee))
+		Log("LoadHistory rows for " & Main.usernamee & ": " & c1.RowCount)
+		For i = 0 To c1.RowCount - 1
+			c1.Position = i
+			ListView1.AddSingleLine( _
+				c1.GetString2(0) & ": " & NumberFormat(c1.GetDouble2(1), 1, 2) & " on " & c1.GetString2(2))
+		Next
+		c1.Close
+	Catch
+		Log("LoadHistory FAILED: " & LastException.Message)
+		ToastMessageShow("Failed to load history: " & LastException.Message, True)
+	End Try
 End Sub
