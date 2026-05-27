@@ -72,7 +72,7 @@ Sub BuildScreen
 	AddHeaderLabel("Split a Bill", pad, y, contentW, primary)
 	y = y + labelH + spacing
 
-	spinnergroup.Initialize("")
+	spinnergroup.Initialize("spinnergroup")
 	spinnergroup.Add("Foods & Groceries")
 	spinnergroup.Add("Transpo")
 	spinnergroup.Add("Rent")
@@ -269,6 +269,18 @@ Private Sub labelaccount_Click
 	pnlmenu.Visible = False
 	StartActivity(account)
 	Activity.Finish
+End Sub
+
+Private Sub spinnergroup_ItemClick(Position As Int, Value As Object)
+	Dim category As String = spinnergroup.SelectedItem
+	Dim c As Cursor
+	c = sql.ExecQuery2( _
+		"SELECT IFNULL(SUM(amount),0) FROM tblexpenses WHERE username=? AND category=?", _
+		Array As String(Main.usernamee, category))
+	c.Position = 0
+	Dim catTotal As Double = c.GetDouble2(0)
+	c.Close
+	txtsplitbill.Text = NumberFormat2(catTotal, 1, 2, 2, False)
 End Sub
 
 Private Sub btnevensplit_Click
