@@ -394,15 +394,12 @@ Sub Activity_Create(FirstTime As Boolean)
 		sql.Initialize(File.DirInternal, "saddbb.db", False)
 		EnsureSchema
 	End If
-	Activity.LoadLayout("loginlayout")
-	MakeResponsive
+	BuildLoginFromScratch
 End Sub
 
-Sub MakeResponsive
+Sub BuildLoginFromScratch
+	Activity.RemoveAllViews
 	Activity.Color = Colors.White
-	TagGlobals
-	HoistTaggedToActivity
-	HideExtras
 
 	Dim w As Int = 100%x
 	Dim h As Int = 100%y
@@ -427,21 +424,27 @@ Sub MakeResponsive
 
 	AddHeaderLabel("Username", cardX, y, cardW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(txtUsername, cardX, y, cardW, ctrlH, "Enter your username", cardBG)
+	txtUsername.Initialize("txtUsername")
+	StyleInputEditText(txtUsername, "Enter your username", cardBG)
+	Activity.AddView(txtUsername, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("Password", cardX, y, cardW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(txtPassword, cardX, y, cardW, ctrlH, "Enter your password", cardBG)
+	txtPassword.Initialize("txtPassword")
+	StyleInputEditText(txtPassword, "Enter your password", cardBG)
 	txtPassword.PasswordMode = True
+	Activity.AddView(txtPassword, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
-	btnLogin.Left = cardX : btnLogin.Top = y : btnLogin.Width = cardW : btnLogin.Height = btnH
+	btnLogin.Initialize("btnLogin")
 	StyleButton(btnLogin, "Login", primary)
+	Activity.AddView(btnLogin, cardX, y, cardW, btnH)
 	y = y + btnH + spacing
 
-	btnSignup.Left = cardX : btnSignup.Top = y : btnSignup.Width = cardW : btnSignup.Height = btnH
+	btnSignup.Initialize("btnSignup")
 	StyleButton(btnSignup, "Sign Up", Colors.Black)
+	Activity.AddView(btnSignup, cardX, y, cardW, btnH)
 End Sub
 
 Sub MinInt(a As Int, b As Int) As Int
@@ -507,13 +510,12 @@ Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
 	Activity.AddView(lbl, x, y, w, 22dip)
 End Sub
 
-Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
-	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+Sub StyleInputEditText(et As EditText, hint As String, bg As Int)
 	et.Hint = hint
 	et.TextSize = 15
 	et.TextColor = Colors.Black
 	Dim cd As ColorDrawable
-	cd.Initialize2(bg, 10dip, 0, bg)
+	cd.Initialize2(bg, 10dip, 1dip, Colors.LightGray)
 	et.Background = cd
 	et.SingleLine = True
 	et.Padding = Array As Int(14dip, 0, 14dip, 0)
