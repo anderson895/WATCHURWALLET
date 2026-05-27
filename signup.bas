@@ -44,7 +44,7 @@ Sub MakeResponsive
 	Dim primary As Int = Colors.RGB(0, 150, 136)
 	Dim cardBG As Int = Colors.RGB(235, 245, 245)
 
-	Dim cardW As Int = Min(contentW, 360dip)
+	Dim cardW As Int = MinInt(contentW, 360dip)
 	Dim cardX As Int = (w - cardW) / 2
 
 	Dim y As Int = pad
@@ -83,7 +83,7 @@ Sub MakeResponsive
 	StyleButton(btnCreate, "Create Account", primary)
 End Sub
 
-Sub Min(a As Int, b As Int) As Int
+Sub MinInt(a As Int, b As Int) As Int
 	If a < b Then Return a
 	Return b
 End Sub
