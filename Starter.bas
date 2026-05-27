@@ -42,7 +42,8 @@ End Sub
 ' Callable from any activity via: Starter.ExportDBAndShowDialog(True)
 Public Sub ExportDBAndShowDialog(showDialog As Boolean)
 	' STEP 1: Capture summary metadata BEFORE closing the SQL connection.
-	Dim summary As String = BuildDataSummary()
+	Dim summary As String
+	summary = BuildDataSummary
 
 	' STEP 2: Flush any pending WAL transactions into the main .db file.
 	FlushWAL
