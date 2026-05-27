@@ -1,4 +1,4 @@
-﻿B4A=true
+B4A=true
 Group=Default Group
 ModulesStructureVersion=1
 Type=Activity
@@ -40,15 +40,9 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("layhome")
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
-	AddExportButtonToMenu
 
-	If ExpenseList.IsInitialized = False Then
-		ExpenseList.Initialize
-	End If
-
-	If CategoryList.IsInitialized = False Then
-		CategoryList.Initialize
-	End If
+	If ExpenseList.IsInitialized = False Then ExpenseList.Initialize
+	If CategoryList.IsInitialized = False Then CategoryList.Initialize
 
 	spinnercategory.Clear
 	spinnercategory.Add("Foods & Groceries")
@@ -64,37 +58,175 @@ Sub Activity_Create(FirstTime As Boolean)
 	txtbalance.Enabled = False
 	txtdate.Enabled = False
 
-	txtallowance.Background = Null
-	txtamountexpenses.Background = Null
-	txtgoal.Background = Null
-	txtamountgoal.Background = Null
-
 	txtstudentsname.Text = Main.fname & " " & Main.lname
+
 	MakeResponsive
+	AddExportButtonToMenu
 End Sub
 
 Sub MakeResponsive
+	Activity.Color = Colors.White
+	TagGlobals
+	HideExtras
+
 	Dim w As Int = 100%x
 	Dim pad As Int = 16dip
+	Dim spacing As Int = 10dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 44dip
+	Dim btnH As Int = 48dip
 	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
 
-	txtstudentsname.Left = pad : txtstudentsname.Width = contentW
-	txtdate.Left = pad : txtdate.Width = contentW
-	txtallowance.Left = pad : txtallowance.Width = contentW
-	txtspent.Left = pad : txtspent.Width = contentW
-	txtbalance.Left = pad : txtbalance.Width = contentW
-	spinnercategory.Left = pad : spinnercategory.Width = contentW
-	txtamountexpenses.Left = pad : txtamountexpenses.Width = contentW
-	txtgoal.Left = pad : txtgoal.Width = contentW
-	txtamountgoal.Left = pad : txtamountgoal.Width = contentW
+	Dim y As Int = pad
+
+	btnmenu.Left = pad
+	btnmenu.Top = y
+	btnmenu.Width = 44dip
+	btnmenu.Height = 44dip
+	btnmenu.Text = Chr(0x2630)
+	btnmenu.TextSize = 22
+	btnmenu.TextColor = primary
+	btnmenu.Color = Colors.White
+
+	txtstudentsname.Left = pad + 56dip
+	txtstudentsname.Top = y + 4dip
+	txtstudentsname.Width = contentW - 56dip
+	txtstudentsname.Height = 36dip
+	txtstudentsname.TextSize = 18
+	txtstudentsname.TextColor = Colors.Black
+	txtstudentsname.Background = Null
+	txtstudentsname.Enabled = False
+
+	y = y + 50dip + spacing
+
+	txtdate.Left = pad
+	txtdate.Top = y
+	txtdate.Width = contentW
+	txtdate.Height = 28dip
+	txtdate.TextSize = 13
+	txtdate.TextColor = Colors.DarkGray
+	txtdate.Background = Null
+	y = y + 28dip + spacing
+
+	AddHeaderLabel("Allowance", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	StyleCardEditText(txtallowance, pad, y, contentW, ctrlH, cardBG)
+	y = y + ctrlH + spacing
+
+	AddHeaderLabel("Spent", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	StyleCardEditText(txtspent, pad, y, contentW, ctrlH, cardBG)
+	y = y + ctrlH + spacing
+
+	AddHeaderLabel("Balance", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	StyleCardEditText(txtbalance, pad, y, contentW, ctrlH, cardBG)
+	y = y + ctrlH + spacing * 2
+
+	AddHeaderLabel("Add Expenses", pad, y, contentW, primary)
+	y = y + labelH + spacing
+
+	spinnercategory.Left = pad
+	spinnercategory.Top = y
+	spinnercategory.Width = contentW
+	spinnercategory.Height = ctrlH
+	y = y + ctrlH + spacing
+
+	StyleInputEditText(txtamountexpenses, pad, y, contentW, ctrlH, "Amount", cardBG)
+	y = y + ctrlH + spacing
 
 	btnacceptexpenses.Width = 60%x
 	btnacceptexpenses.Left = (w - btnacceptexpenses.Width) / 2
+	btnacceptexpenses.Top = y
+	btnacceptexpenses.Height = btnH
+	StyleButton(btnacceptexpenses, "Accept", primary)
+	y = y + btnH + spacing * 2
+
+	AddHeaderLabel("Add to Goals", pad, y, contentW, primary)
+	y = y + labelH + spacing
+
+	StyleInputEditText(txtgoal, pad, y, contentW, ctrlH, "Goal name", cardBG)
+	y = y + ctrlH + spacing
+
+	StyleInputEditText(txtamountgoal, pad, y, contentW, ctrlH, "Amount", cardBG)
+	y = y + ctrlH + spacing
+
 	btnacceptgoal.Width = 60%x
 	btnacceptgoal.Left = (w - btnacceptgoal.Width) / 2
+	btnacceptgoal.Top = y
+	btnacceptgoal.Height = btnH
+	StyleButton(btnacceptgoal, "Add Goal", primary)
 
 	pnlmenu.Width = 70%x
 	pnlmenu.Height = 100%y
+End Sub
+
+Sub TagGlobals
+	btnmenu.Tag = "g"
+	txtstudentsname.Tag = "g"
+	txtdate.Tag = "g"
+	txtallowance.Tag = "g"
+	txtspent.Tag = "g"
+	txtbalance.Tag = "g"
+	spinnercategory.Tag = "g"
+	txtamountexpenses.Tag = "g"
+	btnacceptexpenses.Tag = "g"
+	txtgoal.Tag = "g"
+	txtamountgoal.Tag = "g"
+	btnacceptgoal.Tag = "g"
+	pnlmenu.Tag = "g"
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 15
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub StyleCardEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.TextSize = 16
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub Activity_Resume
@@ -199,10 +331,7 @@ Private Sub btnacceptgoal_Click
 End Sub
 
 Private Sub txtallowance_TextChanged (Old As String, New As String)
-	' Display only; saving is done in account screen.
-	If New = "" Then
-		Return
-	End If
+	If New = "" Then Return
 End Sub
 
 Sub AddExportButtonToMenu
@@ -220,7 +349,6 @@ Private Sub ExportDB_Click
 End Sub
 
 Sub ReloadFromDB
-	' Total allowance for this user.
 	Dim c As Cursor
 	c = sql.ExecQuery2( _
 		"SELECT IFNULL(SUM(amount),0) FROM tblallowance WHERE username=?", _
@@ -229,7 +357,6 @@ Sub ReloadFromDB
 	Allowance = c.GetDouble2(0)
 	c.Close
 
-	' Total expenses for this user.
 	c = sql.ExecQuery2( _
 		"SELECT IFNULL(SUM(amount),0) FROM tblexpenses WHERE username=?", _
 		Array As String(Main.usernamee))
@@ -243,7 +370,6 @@ Sub ReloadFromDB
 	txtspent.Text = NumberFormat(TotalSpent, 1, 2)
 	txtbalance.Text = NumberFormat(Balance, 1, 2)
 
-	' Refresh in-memory lists for the expenses screen.
 	ExpenseList.Clear
 	CategoryList.Clear
 	c = sql.ExecQuery2( _

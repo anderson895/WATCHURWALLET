@@ -31,22 +31,132 @@ Sub Activity_Create(FirstTime As Boolean)
 End Sub
 
 Sub MakeResponsive
+	Activity.Color = Colors.White
+	TagGlobals
+	HideExtras
+
 	Dim w As Int = 100%x
 	Dim pad As Int = 16dip
+	Dim spacing As Int = 10dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 44dip
+	Dim btnH As Int = 48dip
 	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
 
-	txtusername.Left = pad : txtusername.Width = contentW
-	txtfname.Left = pad : txtfname.Width = contentW
-	txtlname.Left = pad : txtlname.Width = contentW
-	txtemail.Left = pad : txtemail.Width = contentW
+	Dim y As Int = pad
+
+	AddBackButton(pad, y, primary)
+	AddHeaderText("My Account", pad + 56dip, y, contentW - 56dip, 44dip, primary, 20)
+	y = y + 50dip + spacing * 2
+
+	AddHeaderLabel("Username", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtusername, pad, y, contentW, ctrlH, "", cardBG)
+	y = y + ctrlH + spacing
+
+	AddHeaderLabel("First Name", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtfname, pad, y, contentW, ctrlH, "", cardBG)
+	y = y + ctrlH + spacing
+
+	AddHeaderLabel("Last Name", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtlname, pad, y, contentW, ctrlH, "", cardBG)
+	y = y + ctrlH + spacing
+
+	AddHeaderLabel("Email", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtemail, pad, y, contentW, ctrlH, "", cardBG)
+	y = y + ctrlH + spacing * 2
+
+	Dim btnSave As Button
+	btnSave.Initialize("btneditflname")
+	StyleButton(btnSave, "Save Changes", primary)
+	Activity.AddView(btnSave, pad, y, contentW, btnH)
+	y = y + btnH + spacing
+
+	Dim btnLogout As Button
+	btnLogout.Initialize("btnlogout")
+	StyleButton(btnLogout, "Logout", Colors.RGB(200, 60, 60))
+	Activity.AddView(btnLogout, pad, y, contentW, btnH)
+End Sub
+
+Sub TagGlobals
+	EditText1.Tag = "g"
+	ListView1.Tag = "g"
+	txtfname.Tag = "g"
+	txtlname.Tag = "g"
+	txtusername.Tag = "g"
+	txtemail.Tag = "g"
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+	EditText1.Visible = False
+	ListView1.Visible = False
+End Sub
+
+Sub AddBackButton(x As Int, y As Int, color As Int)
+	Dim btn As Button
+	btn.Initialize("btnback")
+	btn.Text = Chr(0x2190)
+	btn.TextSize = 24
+	btn.TextColor = color
+	btn.Color = Colors.White
+	Activity.AddView(btn, x, y, 44dip, 44dip)
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 14
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = sz
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, h)
+End Sub
+
+Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub Activity_Resume
-
 End Sub
 
 Sub Activity_Pause (UserClosed As Boolean)
-
 End Sub
 
 Sub LoadAccountInfo

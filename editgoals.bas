@@ -25,7 +25,92 @@ Sub Activity_Create(FirstTime As Boolean)
 
 	goalIds.Initialize
 	lvGoals.Initialize("lvGoals")
-	Activity.AddView(lvGoals, 16dip, 120dip, 100%x - 32dip, 100%y - 220dip)
+
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Activity.Color = Colors.White
+	HideExtras
+
+	Dim w As Int = 100%x
+	Dim h As Int = 100%y
+	Dim pad As Int = 16dip
+	Dim spacing As Int = 10dip
+	Dim btnH As Int = 48dip
+	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+
+	Dim y As Int = pad
+
+	AddBackButton(pad, y, primary)
+	AddHeaderText("Edit Goals", pad + 56dip, y, contentW - 56dip, 44dip, primary, 20)
+	y = y + 50dip + spacing
+
+	AddHeaderLabel("Tap a goal to add progress or delete", pad, y, contentW, Colors.DarkGray)
+	y = y + 22dip + 6dip
+
+	Dim listH As Int = h - y - pad - btnH - spacing
+	If listH < 100dip Then listH = 100dip
+
+	Activity.AddView(lvGoals, pad, y, contentW, listH)
+	lvGoals.Tag = "g"
+	y = y + listH + spacing
+
+	Dim btnSave As Button
+	btnSave.Initialize("btnsavechanges")
+	StyleButton(btnSave, "Done", primary)
+	Activity.AddView(btnSave, pad, y, contentW, btnH)
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+End Sub
+
+Sub AddBackButton(x As Int, y As Int, color As Int)
+	Dim btn As Button
+	btn.Initialize("btnback")
+	btn.Text = Chr(0x2190)
+	btn.TextSize = 24
+	btn.TextColor = color
+	btn.Color = Colors.White
+	Activity.AddView(btn, x, y, 44dip, 44dip)
+	btn.Tag = "g"
+End Sub
+
+Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = sz
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, h)
+	lbl.Tag = "g"
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 13
+	lbl.TextColor = color
+	Activity.AddView(lbl, x, y, w, 22dip)
+	lbl.Tag = "g"
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
+	btn.Tag = "g"
 End Sub
 
 Sub Activity_Resume

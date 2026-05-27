@@ -30,28 +30,177 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("layaccount")
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
-	AddExportButtonToMenu
 	lblfullname.Text = Main.fname & " " & Main.lname
 	lblusername.Text = Main.usernamee
 	lblemail.Text = Main.email
 	MakeResponsive
+	AddExportButtonToMenu
 End Sub
 
 Sub MakeResponsive
+	Activity.Color = Colors.White
+	TagGlobals
+	HideExtras
+
 	Dim w As Int = 100%x
 	Dim pad As Int = 16dip
+	Dim spacing As Int = 8dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 44dip
+	Dim btnH As Int = 44dip
+	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
 
-	lblfullname.Left = pad : lblfullname.Width = w - pad * 2
-	lblusername.Left = pad : lblusername.Width = w - pad * 2
-	lblemail.Left = pad : lblemail.Width = w - pad * 2
+	Dim y As Int = pad
 
-	EditText1.Left = pad : EditText1.Width = w - pad * 2
+	AddMenuButton(pad, y, primary)
+	AddHeaderText("Account", pad + 56dip, y, contentW - 56dip - 50dip, 44dip, primary, 20)
+	AddEditProfileButton(w - pad - 44dip, y, primary)
+	y = y + 50dip + spacing * 2
 
-	ListView1.Left = pad : ListView1.Width = w - pad * 2
-	ListView1.Height = 100%y - ListView1.Top - pad
+	StyleLabelCard(lblfullname, pad, y, contentW, ctrlH, cardBG, Colors.Black, 16, True)
+	y = y + ctrlH + spacing
+	StyleLabelCard(lblusername, pad, y, contentW, 36dip, Colors.White, Colors.DarkGray, 13, False)
+	y = y + 36dip + spacing
+	StyleLabelCard(lblemail, pad, y, contentW, 36dip, Colors.White, Colors.DarkGray, 13, False)
+	y = y + 36dip + spacing * 2
+
+	AddHeaderLabel("Set Allowance", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(EditText1, pad, y, contentW * 0.62, ctrlH, "0.00", cardBG)
+
+	Dim btnSet As Button
+	btnSet.Initialize("btnsetallowance")
+	StyleButton(btnSet, "Set", primary)
+	Activity.AddView(btnSet, pad + contentW * 0.64, y, contentW * 0.36, ctrlH)
+	y = y + ctrlH + spacing * 2
+
+	AddHeaderLabel("History", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+
+	Dim btnRowY As Int = 100%y - pad - btnH
+	Dim editH As Int = btnH
+	Dim editGap As Int = 8dip
+	Dim lvH As Int = btnRowY - y - editH - editGap - spacing
+	If lvH < 100dip Then lvH = 100dip
+
+	ListView1.Left = pad
+	ListView1.Top = y
+	ListView1.Width = contentW
+	ListView1.Height = lvH
+
+	Dim editsY As Int = y + lvH + spacing
+
+	btneditexpenses.Left = pad
+	btneditexpenses.Top = editsY
+	btneditexpenses.Width = (contentW - editGap) / 2
+	btneditexpenses.Height = editH
+	StyleButton(btneditexpenses, "Edit Expenses", primary)
+
+	Dim btnEditGoals As Button
+	btnEditGoals.Initialize("btneditgoals")
+	StyleButton(btnEditGoals, "Edit Goals", primary)
+	Activity.AddView(btnEditGoals, pad + (contentW - editGap) / 2 + editGap, editsY, (contentW - editGap) / 2, editH)
 
 	pnlmenu.Width = 70%x
 	pnlmenu.Height = 100%y
+End Sub
+
+Sub TagGlobals
+	lblfullname.Tag = "g"
+	lblemail.Tag = "g"
+	lblusername.Tag = "g"
+	btneditexpenses.Tag = "g"
+	ListView1.Tag = "g"
+	EditText1.Tag = "g"
+	pnlmenu.Tag = "g"
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+End Sub
+
+Sub AddMenuButton(x As Int, y As Int, color As Int)
+	Dim btn As Button
+	btn.Initialize("btnmenu")
+	btn.Text = Chr(0x2630)
+	btn.TextSize = 22
+	btn.TextColor = color
+	btn.Color = Colors.White
+	Activity.AddView(btn, x, y, 44dip, 44dip)
+End Sub
+
+Sub AddEditProfileButton(x As Int, y As Int, color As Int)
+	Dim btn As Button
+	btn.Initialize("btneditmyacc")
+	btn.Text = Chr(0x270E)
+	btn.TextSize = 20
+	btn.TextColor = color
+	btn.Color = Colors.White
+	Activity.AddView(btn, x, y, 44dip, 44dip)
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 15
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = sz
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, h)
+End Sub
+
+Sub StyleLabelCard(lbl As Label, x As Int, y As Int, w As Int, h As Int, bg As Int, txtColor As Int, sz As Int, bold As Boolean)
+	lbl.Left = x : lbl.Top = y : lbl.Width = w : lbl.Height = h
+	lbl.TextSize = sz
+	lbl.TextColor = txtColor
+	If bold Then lbl.Typeface = Typeface.DEFAULT_BOLD
+	If bg <> Colors.White Then
+		Dim cd As ColorDrawable
+		cd.Initialize2(bg, 10dip, 0, bg)
+		lbl.Background = cd
+		lbl.Padding = Array As Int(14dip, 0, 14dip, 0)
+	Else
+		lbl.Background = Null
+		lbl.Padding = Array As Int(4dip, 0, 4dip, 0)
+	End If
+	lbl.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
+End Sub
+
+Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 14
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub AddExportButtonToMenu
@@ -134,12 +283,10 @@ Private Sub btneditexpenses_Click
 	StartActivity(editexpenses)
 End Sub
 
-' Edit profile icon (pencil) at the top.
 Private Sub btneditmyacc_Click
 	StartActivity(myacc)
 End Sub
 
-' "Edit Goals/Saving" button.
 Private Sub btneditgoals_Click
 	StartActivity(editgoals)
 End Sub

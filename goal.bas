@@ -27,24 +27,125 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("laygoal")
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
-	AddExportButtonToMenu
 	MakeResponsive
+	AddExportButtonToMenu
 End Sub
 
 Sub MakeResponsive
+	Activity.Color = Colors.White
+	TagGlobals
+	HideExtras
+
 	Dim w As Int = 100%x
 	Dim pad As Int = 16dip
+	Dim spacing As Int = 10dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 44dip
+	Dim btnH As Int = 48dip
 	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
 
-	txtgoalcategory1.Left = pad : txtgoalcategory1.Width = contentW
-	txtaddedgoal1.Left = pad : txtaddedgoal1.Width = contentW
-	ProgressBar1.Left = pad : ProgressBar1.Width = contentW
+	Dim y As Int = pad
+
+	AddMenuButton(pad, y, primary)
+
+	AddHeaderText("Goals & Savings", pad + 56dip, y, contentW - 56dip, 44dip, primary, 20)
+	y = y + 50dip + spacing * 2
+
+	AddHeaderLabel("Category", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtgoalcategory1, pad, y, contentW, ctrlH, "e.g. New Laptop", cardBG)
+	y = y + ctrlH + spacing * 2
+
+	AddHeaderLabel("Target Amount", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtaddedgoal1, pad, y, contentW, ctrlH, "0.00", cardBG)
+	y = y + ctrlH + spacing * 2
+
+	AddHeaderLabel("Progress", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	ProgressBar1.Left = pad
+	ProgressBar1.Top = y
+	ProgressBar1.Width = contentW
+	ProgressBar1.Height = 24dip
+	y = y + 24dip + spacing * 2
 
 	btnaddgoal.Width = 60%x
 	btnaddgoal.Left = (w - btnaddgoal.Width) / 2
+	btnaddgoal.Top = y
+	btnaddgoal.Height = btnH
+	StyleButton(btnaddgoal, "Add Goal", primary)
 
 	pnlmenu.Width = 70%x
 	pnlmenu.Height = 100%y
+End Sub
+
+Sub TagGlobals
+	txtaddedgoal1.Tag = "g"
+	txtgoalcategory1.Tag = "g"
+	ProgressBar1.Tag = "g"
+	btnaddgoal.Tag = "g"
+	pnlmenu.Tag = "g"
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+End Sub
+
+Sub AddMenuButton(x As Int, y As Int, color As Int)
+	Dim btn As Button
+	btn.Initialize("btnmenu")
+	btn.Text = Chr(0x2630)
+	btn.TextSize = 22
+	btn.TextColor = color
+	btn.Color = Colors.White
+	Activity.AddView(btn, x, y, 44dip, 44dip)
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 15
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = sz
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, h)
+End Sub
+
+Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub AddExportButtonToMenu

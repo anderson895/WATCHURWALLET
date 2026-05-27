@@ -395,6 +395,114 @@ Sub Activity_Create(FirstTime As Boolean)
 		EnsureSchema
 	End If
 	Activity.LoadLayout("loginlayout")
+	MakeResponsive
+End Sub
+
+Sub MakeResponsive
+	Activity.Color = Colors.White
+	TagGlobals
+	HideExtras
+
+	Dim w As Int = 100%x
+	Dim h As Int = 100%y
+	Dim pad As Int = 24dip
+	Dim spacing As Int = 12dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 48dip
+	Dim btnH As Int = 50dip
+	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(235, 245, 245)
+
+	Dim cardW As Int = Min(contentW, 360dip)
+	Dim cardX As Int = (w - cardW) / 2
+
+	Dim totalH As Int = 80dip + (labelH + 6dip + ctrlH + spacing) * 2 + btnH + spacing + btnH
+	Dim y As Int = (h - totalH) / 2
+	If y < pad Then y = pad
+
+	AddBrandTitle("WatchYourWallet", cardX, y, cardW, primary)
+	y = y + 60dip + spacing
+
+	AddHeaderLabel("Username", cardX, y, cardW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtUsername, cardX, y, cardW, ctrlH, "Enter your username", cardBG)
+	y = y + ctrlH + spacing
+
+	AddHeaderLabel("Password", cardX, y, cardW, primary)
+	y = y + labelH + 6dip
+	StyleInputEditText(txtPassword, cardX, y, cardW, ctrlH, "Enter your password", cardBG)
+	txtPassword.PasswordMode = True
+	y = y + ctrlH + spacing * 2
+
+	btnLogin.Left = cardX : btnLogin.Top = y : btnLogin.Width = cardW : btnLogin.Height = btnH
+	StyleButton(btnLogin, "Login", primary)
+	y = y + btnH + spacing
+
+	btnSignup.Left = cardX : btnSignup.Top = y : btnSignup.Width = cardW : btnSignup.Height = btnH
+	StyleButton(btnSignup, "Sign Up", Colors.Black)
+End Sub
+
+Sub Min(a As Int, b As Int) As Int
+	If a < b Then Return a
+	Return b
+End Sub
+
+Sub TagGlobals
+	txtUsername.Tag = "g"
+	txtPassword.Tag = "g"
+	btnLogin.Tag = "g"
+	btnSignup.Tag = "g"
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+End Sub
+
+Sub AddBrandTitle(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 26
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	lbl.Gravity = Gravity.CENTER
+	Activity.AddView(lbl, x, y, w, 50dip)
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 14
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub Activity_Resume

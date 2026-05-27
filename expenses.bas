@@ -33,35 +33,164 @@ Sub Activity_Create(FirstTime As Boolean)
 
 	pnlmenu.LoadLayout("laymenu")
 	pnlmenu.Visible = False
-	AddExportButtonToMenu
 
 	txttotweekexp.Enabled = False
 
 	LoadSpinnerCategories
 
-	txtsplitbill.Background = Null
-	txtsplitwith.Background = Null
 	MakeResponsive
+	AddExportButtonToMenu
 End Sub
 
 Sub MakeResponsive
+	Activity.Color = Colors.White
+	TagGlobals
+	HideExtras
+
 	Dim w As Int = 100%x
 	Dim pad As Int = 16dip
+	Dim spacing As Int = 10dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 44dip
+	Dim btnH As Int = 46dip
 	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
 
-	txttotweekexp.Left = pad : txttotweekexp.Width = contentW
-	spinnergroup.Left = pad : spinnergroup.Width = contentW
-	txtsplitbill.Left = pad : txtsplitbill.Width = contentW
-	txtsplitwith.Left = pad : txtsplitwith.Width = contentW
+	Dim y As Int = pad
+
+	btnmenu.Left = pad
+	btnmenu.Top = y
+	btnmenu.Width = 44dip
+	btnmenu.Height = 44dip
+	btnmenu.Text = Chr(0x2630)
+	btnmenu.TextSize = 22
+	btnmenu.TextColor = primary
+	btnmenu.Color = Colors.White
+
+	AddHeaderText("Expenses", pad + 56dip, y, contentW - 56dip, 44dip, primary, 20)
+	y = y + 50dip + spacing
+
+	AddHeaderLabel("Total Spent", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	StyleCardEditText(txttotweekexp, pad, y, contentW, ctrlH, cardBG)
+	y = y + ctrlH + spacing * 2
+
+	AddHeaderLabel("Expense History", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+
+	Dim histH As Int = 150dip
+	listexpenses.Left = pad
+	listexpenses.Top = y
+	listexpenses.Width = contentW
+	listexpenses.Height = histH
+	y = y + histH + spacing * 2
+
+	AddHeaderLabel("Split a Bill", pad, y, contentW, primary)
+	y = y + labelH + spacing
+
+	spinnergroup.Left = pad
+	spinnergroup.Top = y
+	spinnergroup.Width = contentW
+	spinnergroup.Height = ctrlH
+	y = y + ctrlH + spacing
+
+	StyleInputEditText(txtsplitbill, pad, y, contentW, ctrlH, "Total Bill", cardBG)
+	y = y + ctrlH + spacing
+
+	StyleInputEditText(txtsplitwith, pad, y, contentW, ctrlH, "Number of Persons", cardBG)
+	y = y + ctrlH + spacing
 
 	btnevensplit.Width = 60%x
 	btnevensplit.Left = (w - btnevensplit.Width) / 2
+	btnevensplit.Top = y
+	btnevensplit.Height = btnH
+	StyleButton(btnevensplit, "Split Evenly", primary)
+	y = y + btnH + spacing * 2
 
-	listexpenses.Left = pad : listexpenses.Width = contentW
-	listsplit.Left = pad : listsplit.Width = contentW
+	AddHeaderLabel("Split History", pad, y, contentW, primary)
+	y = y + labelH + 6dip
+	Dim splitH As Int = 100%y - y - pad
+	If splitH < 80dip Then splitH = 80dip
+	listsplit.Left = pad
+	listsplit.Top = y
+	listsplit.Width = contentW
+	listsplit.Height = splitH
 
 	pnlmenu.Width = 70%x
 	pnlmenu.Height = 100%y
+End Sub
+
+Sub TagGlobals
+	btnmenu.Tag = "g"
+	txttotweekexp.Tag = "g"
+	listexpenses.Tag = "g"
+	txtsplitbill.Tag = "g"
+	spinnergroup.Tag = "g"
+	btnevensplit.Tag = "g"
+	listsplit.Tag = "g"
+	txtsplitwith.Tag = "g"
+	pnlmenu.Tag = "g"
+End Sub
+
+Sub HideExtras
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim t As String = "" & v.Tag
+		If t <> "g" Then v.Visible = False
+	Next
+End Sub
+
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 15
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = sz
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, h)
+End Sub
+
+Sub StyleCardEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.TextSize = 16
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
+	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub Activity_Resume
@@ -129,7 +258,6 @@ End Sub
 
 Sub LoadSpinnerCategories
 	spinnergroup.Clear
-
 	spinnergroup.Add("Foods & Groceries")
 	spinnergroup.Add("Transpo")
 	spinnergroup.Add("Rent")
