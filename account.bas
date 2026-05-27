@@ -15,6 +15,7 @@ End Sub
 
 Sub Globals
 	Private pnlmenu As Panel
+	Private pnlcontent As Panel
 	Private lblfullname As Label
 	Private lblemail As Label
 	Private lblusername As Label
@@ -31,6 +32,9 @@ Sub BuildScreen
 	Activity.RemoveAllViews
 	Activity.Color = Colors.White
 
+	pnlcontent.Initialize("")
+	Activity.AddView(pnlcontent, 0, 0, 100%x, 100%y)
+
 	Dim w As Int = 100%x
 	Dim h As Int = 100%y
 	Dim pad As Int = 16dip
@@ -44,44 +48,64 @@ Sub BuildScreen
 
 	Dim y As Int = pad
 
-	AddMenuButton(pad, y, primary)
-	AddTitle("Account", pad + 56dip, y, contentW - 56dip - 50dip, primary, 20)
-	AddEditProfileButton(w - pad - 44dip, y, primary)
+	Dim btnMenu As Button
+	btnMenu.Initialize("btnmenu")
+	btnMenu.Text = Chr(0x2630)
+	btnMenu.TextSize = 22
+	btnMenu.TextColor = primary
+	btnMenu.Color = Colors.White
+	pnlcontent.AddView(btnMenu, pad, y, 44dip, 44dip)
+
+	Dim lblTitle As Label
+	lblTitle.Initialize("")
+	lblTitle.Text = "Account"
+	lblTitle.TextSize = 20
+	lblTitle.TextColor = primary
+	lblTitle.Typeface = Typeface.DEFAULT_BOLD
+	pnlcontent.AddView(lblTitle, pad + 56dip, y, contentW - 56dip - 50dip, 44dip)
+
+	Dim btnEdit As Button
+	btnEdit.Initialize("btneditmyacc")
+	btnEdit.Text = Chr(0x270E)
+	btnEdit.TextSize = 20
+	btnEdit.TextColor = primary
+	btnEdit.Color = Colors.White
+	pnlcontent.AddView(btnEdit, w - pad - 44dip, y, 44dip, 44dip)
 	y = y + 50dip + spacing * 2
 
 	lblfullname.Initialize("")
 	lblfullname.Text = Main.fname & " " & Main.lname
 	StyleLabelCard(lblfullname, cardBG, Colors.Black, 16, True)
-	Activity.AddView(lblfullname, pad, y, contentW, ctrlH)
+	pnlcontent.AddView(lblfullname, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	lblusername.Initialize("")
 	lblusername.Text = Main.usernamee
 	StyleLabelCard(lblusername, Colors.White, Colors.DarkGray, 13, False)
-	Activity.AddView(lblusername, pad, y, contentW, 36dip)
+	pnlcontent.AddView(lblusername, pad, y, contentW, 36dip)
 	y = y + 36dip + spacing
 
 	lblemail.Initialize("")
 	lblemail.Text = Main.email
 	StyleLabelCard(lblemail, Colors.White, Colors.DarkGray, 13, False)
-	Activity.AddView(lblemail, pad, y, contentW, 36dip)
+	pnlcontent.AddView(lblemail, pad, y, contentW, 36dip)
 	y = y + 36dip + spacing * 2
 
-	AddHeaderLabel("Set Allowance", pad, y, contentW, primary)
+	AddLabel("Set Allowance", pad, y, contentW, primary)
 	y = y + labelH + 6dip
 
 	EditText1.Initialize("EditText1")
 	StyleInputEditText(EditText1, "0.00", cardBG)
 	EditText1.InputType = EditText1.INPUT_TYPE_DECIMAL_NUMBERS
-	Activity.AddView(EditText1, pad, y, contentW * 0.62, ctrlH)
+	pnlcontent.AddView(EditText1, pad, y, contentW * 0.62, ctrlH)
 
 	Dim btnSet As Button
 	btnSet.Initialize("btnsetallowance")
 	StyleButton(btnSet, "Set", primary)
-	Activity.AddView(btnSet, pad + contentW * 0.64, y, contentW * 0.36, ctrlH)
+	pnlcontent.AddView(btnSet, pad + contentW * 0.64, y, contentW * 0.36, ctrlH)
 	y = y + ctrlH + spacing * 2
 
-	AddHeaderLabel("History", pad, y, contentW, primary)
+	AddLabel("History", pad, y, contentW, primary)
 	y = y + labelH + 6dip
 
 	Dim btnRowY As Int = h - pad - btnH
@@ -95,22 +119,22 @@ Sub BuildScreen
 	ListView1.SingleLineLayout.Label.TextColor = Colors.Black
 	ListView1.SingleLineLayout.Label.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
 	ListView1.SingleLineLayout.Label.Padding = Array As Int(14dip, 0, 14dip, 0)
-	Activity.AddView(ListView1, pad, y, contentW, lvH)
+	pnlcontent.AddView(ListView1, pad, y, contentW, lvH)
 
 	Dim btnEditExp As Button
 	btnEditExp.Initialize("btneditexpenses")
 	StyleButton(btnEditExp, "Edit Expenses", primary)
-	Activity.AddView(btnEditExp, pad, btnRowY, (contentW - editGap) / 2, btnH)
+	pnlcontent.AddView(btnEditExp, pad, btnRowY, (contentW - editGap) / 2, btnH)
 
 	Dim btnEditGoals As Button
 	btnEditGoals.Initialize("btneditgoals")
 	StyleButton(btnEditGoals, "Edit Goals", primary)
-	Activity.AddView(btnEditGoals, pad + (contentW - editGap) / 2 + editGap, btnRowY, (contentW - editGap) / 2, btnH)
+	pnlcontent.AddView(btnEditGoals, pad + (contentW - editGap) / 2 + editGap, btnRowY, (contentW - editGap) / 2, btnH)
 
-	BuildSideNav(primary)
+	BuildSideNav
 End Sub
 
-Sub BuildSideNav(primary As Int)
+Sub BuildSideNav
 	pnlmenu.Initialize("")
 	pnlmenu.Color = Colors.White
 	Activity.AddView(pnlmenu, 0, 0, 70%x, 100%y)
@@ -126,44 +150,14 @@ Sub BuildSideNav(primary As Int)
 	pnlmenu.AddView(btn, 16dip, 100%y - 70dip, pnlmenu.Width - 32dip, 48dip)
 End Sub
 
-Sub AddMenuButton(x As Int, y As Int, color As Int)
-	Dim btn As Button
-	btn.Initialize("btnmenu")
-	btn.Text = Chr(0x2630)
-	btn.TextSize = 22
-	btn.TextColor = color
-	btn.Color = Colors.White
-	Activity.AddView(btn, x, y, 44dip, 44dip)
-End Sub
-
-Sub AddEditProfileButton(x As Int, y As Int, color As Int)
-	Dim btn As Button
-	btn.Initialize("btneditmyacc")
-	btn.Text = Chr(0x270E)
-	btn.TextSize = 20
-	btn.TextColor = color
-	btn.Color = Colors.White
-	Activity.AddView(btn, x, y, 44dip, 44dip)
-End Sub
-
-Sub AddTitle(text As String, x As Int, y As Int, w As Int, color As Int, sz As Int)
-	Dim lbl As Label
-	lbl.Initialize("")
-	lbl.Text = text
-	lbl.TextSize = sz
-	lbl.TextColor = color
-	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, 44dip)
-End Sub
-
-Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+Sub AddLabel(text As String, x As Int, y As Int, w As Int, color As Int)
 	Dim lbl As Label
 	lbl.Initialize("")
 	lbl.Text = text
 	lbl.TextSize = 14
 	lbl.TextColor = color
 	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, 22dip)
+	pnlcontent.AddView(lbl, x, y, w, 22dip)
 End Sub
 
 Sub StyleLabelCard(lbl As Label, bg As Int, txtColor As Int, sz As Int, bold As Boolean)
@@ -214,30 +208,34 @@ Sub Activity_Resume
 End Sub
 
 Private Sub btnmenu_Click
+	pnlcontent.Visible = False
 	pnlmenu.Visible = True
-	pnlmenu.BringToFront
 End Sub
 
 Private Sub labelhome_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(home)
 	Activity.Finish
 End Sub
 
 Private Sub labelexpenses_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(expenses)
 	Activity.Finish
 End Sub
 
 Private Sub labelgoal_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(goal)
 	Activity.Finish
 End Sub
 
 Private Sub labelaccount_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 End Sub
 
 Private Sub btnsetallowance_Click

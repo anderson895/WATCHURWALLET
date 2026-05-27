@@ -15,6 +15,7 @@ End Sub
 
 Sub Globals
 	Private pnlmenu As Panel
+	Private pnlcontent As Panel
 	Private txttotweekexp As EditText
 	Private listexpenses As ListView
 	Private txtsplitbill As EditText
@@ -32,6 +33,9 @@ Sub BuildScreen
 	Activity.RemoveAllViews
 	Activity.Color = Colors.White
 
+	pnlcontent.Initialize("")
+	Activity.AddView(pnlcontent, 0, 0, 100%x, 100%y)
+
 	Dim w As Int = 100%x
 	Dim h As Int = 100%y
 	Dim pad As Int = 16dip
@@ -45,20 +49,33 @@ Sub BuildScreen
 
 	Dim y As Int = pad
 
-	AddMenuButton(pad, y, primary)
-	AddTitle("Expenses", pad + 56dip, y, contentW - 56dip, primary)
+	Dim btnMenu As Button
+	btnMenu.Initialize("btnmenu")
+	btnMenu.Text = Chr(0x2630)
+	btnMenu.TextSize = 22
+	btnMenu.TextColor = primary
+	btnMenu.Color = Colors.White
+	pnlcontent.AddView(btnMenu, pad, y, 44dip, 44dip)
+
+	Dim lblTitle As Label
+	lblTitle.Initialize("")
+	lblTitle.Text = "Expenses"
+	lblTitle.TextSize = 20
+	lblTitle.TextColor = primary
+	lblTitle.Typeface = Typeface.DEFAULT_BOLD
+	pnlcontent.AddView(lblTitle, pad + 56dip, y, contentW - 56dip, 44dip)
 	y = y + 50dip + spacing
 
-	AddHeaderLabel("Total Spent", pad, y, contentW, primary)
+	AddLabel("Total Spent", pad, y, contentW, primary)
 	y = y + labelH + 4dip
 	txttotweekexp.Initialize("")
 	StyleCardEditText(txttotweekexp, cardBG)
 	txttotweekexp.Enabled = False
 	txttotweekexp.TextColor = Colors.Black
-	Activity.AddView(txttotweekexp, pad, y, contentW, ctrlH)
+	pnlcontent.AddView(txttotweekexp, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
-	AddHeaderLabel("Expense History", pad, y, contentW, primary)
+	AddLabel("Expense History", pad, y, contentW, primary)
 	y = y + labelH + 6dip
 	Dim histH As Int = 150dip
 	listexpenses.Initialize("")
@@ -66,10 +83,10 @@ Sub BuildScreen
 	listexpenses.SingleLineLayout.Label.TextSize = 14
 	listexpenses.SingleLineLayout.Label.TextColor = Colors.Black
 	listexpenses.SingleLineLayout.Label.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
-	Activity.AddView(listexpenses, pad, y, contentW, histH)
+	pnlcontent.AddView(listexpenses, pad, y, contentW, histH)
 	y = y + histH + spacing * 2
 
-	AddHeaderLabel("Split a Bill", pad, y, contentW, primary)
+	AddLabel("Split a Bill", pad, y, contentW, primary)
 	y = y + labelH + spacing
 
 	spinnergroup.Initialize("spinnergroup")
@@ -78,28 +95,28 @@ Sub BuildScreen
 	spinnergroup.Add("Rent")
 	spinnergroup.Add("School Supplies")
 	spinnergroup.Add("School Projects")
-	Activity.AddView(spinnergroup, pad, y, contentW, ctrlH)
+	pnlcontent.AddView(spinnergroup, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	txtsplitbill.Initialize("")
 	StyleInputEditText(txtsplitbill, "Total Bill", cardBG)
 	txtsplitbill.InputType = txtsplitbill.INPUT_TYPE_DECIMAL_NUMBERS
-	Activity.AddView(txtsplitbill, pad, y, contentW, ctrlH)
+	pnlcontent.AddView(txtsplitbill, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	txtsplitwith.Initialize("")
 	StyleInputEditText(txtsplitwith, "Number of Persons", cardBG)
 	txtsplitwith.InputType = txtsplitwith.INPUT_TYPE_NUMBERS
-	Activity.AddView(txtsplitwith, pad, y, contentW, ctrlH)
+	pnlcontent.AddView(txtsplitwith, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	Dim btnSplit As Button
 	btnSplit.Initialize("btnevensplit")
 	StyleButton(btnSplit, "Split Evenly", primary)
-	Activity.AddView(btnSplit, (w - 60%x) / 2, y, 60%x, btnH)
+	pnlcontent.AddView(btnSplit, (w - 60%x) / 2, y, 60%x, btnH)
 	y = y + btnH + spacing * 2
 
-	AddHeaderLabel("Split History", pad, y, contentW, primary)
+	AddLabel("Split History", pad, y, contentW, primary)
 	y = y + labelH + 6dip
 	Dim splitH As Int = h - y - pad
 	If splitH < 80dip Then splitH = 80dip
@@ -108,7 +125,7 @@ Sub BuildScreen
 	listsplit.SingleLineLayout.Label.TextSize = 14
 	listsplit.SingleLineLayout.Label.TextColor = Colors.Black
 	listsplit.SingleLineLayout.Label.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
-	Activity.AddView(listsplit, pad, y, contentW, splitH)
+	pnlcontent.AddView(listsplit, pad, y, contentW, splitH)
 
 	BuildSideNav
 End Sub
@@ -129,34 +146,14 @@ Sub BuildSideNav
 	pnlmenu.AddView(btn, 16dip, 100%y - 70dip, pnlmenu.Width - 32dip, 48dip)
 End Sub
 
-Sub AddMenuButton(x As Int, y As Int, color As Int)
-	Dim btn As Button
-	btn.Initialize("btnmenu")
-	btn.Text = Chr(0x2630)
-	btn.TextSize = 22
-	btn.TextColor = color
-	btn.Color = Colors.White
-	Activity.AddView(btn, x, y, 44dip, 44dip)
-End Sub
-
-Sub AddTitle(text As String, x As Int, y As Int, w As Int, color As Int)
-	Dim lbl As Label
-	lbl.Initialize("")
-	lbl.Text = text
-	lbl.TextSize = 20
-	lbl.TextColor = color
-	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, 44dip)
-End Sub
-
-Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+Sub AddLabel(text As String, x As Int, y As Int, w As Int, color As Int)
 	Dim lbl As Label
 	lbl.Initialize("")
 	lbl.Text = text
 	lbl.TextSize = 15
 	lbl.TextColor = color
 	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, 22dip)
+	pnlcontent.AddView(lbl, x, y, w, 22dip)
 End Sub
 
 Sub StyleCardEditText(et As EditText, bg As Int)
@@ -245,28 +242,32 @@ Private Sub ExportDB_Click
 End Sub
 
 Private Sub btnmenu_Click
+	pnlcontent.Visible = False
 	pnlmenu.Visible = True
-	pnlmenu.BringToFront
 End Sub
 
 Private Sub labelhome_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(home)
 	Activity.Finish
 End Sub
 
 Private Sub labelexpenses_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 End Sub
 
 Private Sub labelgoal_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(goal)
 	Activity.Finish
 End Sub
 
 Private Sub labelaccount_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(account)
 	Activity.Finish
 End Sub
