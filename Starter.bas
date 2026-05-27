@@ -41,10 +41,22 @@ End Sub
 ' Exports the COMPLETE live SQLite database file (all tables, all rows) to shared storage.
 ' Callable from any activity via: Starter.ExportDBAndShowDialog(True)
 Public Sub ExportDBAndShowDialog(showDialog As Boolean)
-	' STEP 1: Flush any pending WAL transactions into the main .db file so the
-	' copy isn't an empty / outdated snapshot. Without this, recent inserts may
-	' still live in saddbb.db-wal and the exported file will look empty.
+	' STEP 1: Capture summary metadata BEFORE closing the SQL connection.
+	Dim summary As String = BuildDataSummary()
+
+	' STEP 2: Flush any pending WAL transactions into the main .db file.
 	FlushWAL
+
+	' STEP 3: CLOSE the SQL connection completely. This is the only way to
+	' guarantee that all in-memory pages, OS caches, and WAL sidecar data are
+	' fully merged into the main saddbb.db file on disk. Without this, the
+	' export may still miss the most recent inserts.
+	Try
+		Main.sql.Close
+		Log("SQL connection closed for export")
+	Catch
+		Log("SQL close failed: " & LastException.Message)
+	End Try
 
 	Dim sourcePath As String = File.Combine(File.DirInternal, "saddbb.db")
 	Dim sourceSize As Long = 0
@@ -68,15 +80,14 @@ Public Sub ExportDBAndShowDialog(showDialog As Boolean)
 	For i = 0 To targets.Length - 1
 		Try
 			If File.Exists(targets(i), "") Then
-				' Copy the main DB file.
-				File.Copy(File.DirInternal, "saddbb.db", targets(i), outName)
+				' Remove any stale sidecars at destination so we end up with a
+				' single clean .db file (connection close already merged everything).
+				DeleteIfExists(targets(i), outName & "-wal")
+				DeleteIfExists(targets(i), outName & "-shm")
+				DeleteIfExists(targets(i), outName & "-journal")
 
-				' Belt-and-suspenders: also copy any -wal/-shm sidecars in case
-				' the checkpoint didn't fully clear them. DB Browser can open
-				' the main file alongside these.
-				CopyIfExists(targets(i), "saddbb.db-wal", outName & "-wal")
-				CopyIfExists(targets(i), "saddbb.db-shm", outName & "-shm")
-				CopyIfExists(targets(i), "saddbb.db-journal", outName & "-journal")
+				' Copy the main DB file only.
+				File.Copy(File.DirInternal, "saddbb.db", targets(i), outName)
 
 				If successPath = "" Then successPath = targets(i) & "/" & outName
 				Log("DB exported to " & targets(i) & "/" & outName)
@@ -88,8 +99,16 @@ Public Sub ExportDBAndShowDialog(showDialog As Boolean)
 		End Try
 	Next
 
+	' STEP 4: Re-open the SQL connection so the app keeps working after export.
+	Try
+		Main.sql.Initialize(File.DirInternal, "saddbb.db", False)
+		Log("SQL connection re-opened after export")
+	Catch
+		Log("SQL re-open failed: " & LastException.Message)
+	End Try
+
 	If showDialog Then
-		Msgbox(BuildExportSummary(sourcePath, sourceSize, successPath, failures), "SQLite DB Exported")
+		Msgbox(BuildExportSummary(sourcePath, sourceSize, successPath, failures, summary), "SQLite DB Exported")
 	End If
 End Sub
 
@@ -122,28 +141,22 @@ Sub FlushWAL
 	End Try
 End Sub
 
-Sub CopyIfExists(targetDir As String, srcName As String, dstName As String)
+Sub DeleteIfExists(targetDir As String, fileName As String)
 	Try
-		If File.Exists(File.DirInternal, srcName) Then
-			File.Copy(File.DirInternal, srcName, targetDir, dstName)
+		If File.Exists(targetDir, fileName) Then
+			File.Delete(targetDir, fileName)
 		End If
 	Catch
-		Log("Sidecar copy " & srcName & " failed: " & LastException.Message)
+		Log("Sidecar delete " & fileName & " failed: " & LastException.Message)
 	End Try
 End Sub
 
-Sub BuildExportSummary(sourcePath As String, sourceSize As Long, successPath As String, failures As String) As String
+Sub BuildExportSummary(sourcePath As String, sourceSize As Long, successPath As String, failures As String, dataSummary As String) As String
 	Dim msg As String
 	msg = "SOURCE (live DB on device):" & CRLF & sourcePath & CRLF & _
 		"Size: " & sourceSize & " bytes" & CRLF & CRLF
 
-	msg = msg & "DATA IN DATABASE:" & CRLF
-	msg = msg & TableSummary("tblusers") & CRLF
-	msg = msg & TableSummary("tblallowance") & CRLF
-	msg = msg & TableSummary("tblexpenses") & CRLF
-	msg = msg & TableSummary("tblgoal") & CRLF
-	msg = msg & TableSummary("tbltransac") & CRLF
-	msg = msg & TableSummary("tblsplit") & CRLF & CRLF
+	msg = msg & "DATA IN DATABASE:" & CRLF & dataSummary & CRLF
 
 	If successPath <> "" Then
 		msg = msg & "EXPORTED TO:" & CRLF & successPath & CRLF & CRLF & _
@@ -156,6 +169,18 @@ Sub BuildExportSummary(sourcePath As String, sourceSize As Long, successPath As 
 		msg = msg & "EXPORT FAILED in all locations:" & CRLF & failures
 	End If
 	Return msg
+End Sub
+
+' Builds the table-row-count summary while the SQL connection is still open.
+Sub BuildDataSummary() As String
+	Dim s As String
+	s = TableSummary("tblusers") & CRLF
+	s = s & TableSummary("tblallowance") & CRLF
+	s = s & TableSummary("tblexpenses") & CRLF
+	s = s & TableSummary("tblgoal") & CRLF
+	s = s & TableSummary("tbltransac") & CRLF
+	s = s & TableSummary("tblsplit")
+	Return s
 End Sub
 
 Sub TableSummary(tableName As String) As String
