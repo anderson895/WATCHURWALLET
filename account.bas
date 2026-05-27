@@ -215,6 +215,7 @@ End Sub
 
 Private Sub btnmenu_Click
 	pnlmenu.Visible = True
+	pnlmenu.BringToFront
 End Sub
 
 Private Sub labelhome_Click

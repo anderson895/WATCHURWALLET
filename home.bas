@@ -92,6 +92,7 @@ Sub BuildScreen
 	txtspent.Initialize("")
 	StyleCardEditText(txtspent, cardBG)
 	txtspent.Enabled = False
+	txtspent.TextColor = Colors.Black
 	Activity.AddView(txtspent, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
@@ -100,6 +101,7 @@ Sub BuildScreen
 	txtbalance.Initialize("")
 	StyleCardEditText(txtbalance, cardBG)
 	txtbalance.Enabled = False
+	txtbalance.TextColor = Colors.Black
 	Activity.AddView(txtbalance, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
@@ -222,6 +224,7 @@ End Sub
 
 Private Sub btnmenu_Click
 	pnlmenu.Visible = True
+	pnlmenu.BringToFront
 End Sub
 
 Private Sub labelhome_Click

@@ -54,6 +54,7 @@ Sub BuildScreen
 	txttotweekexp.Initialize("")
 	StyleCardEditText(txttotweekexp, cardBG)
 	txttotweekexp.Enabled = False
+	txttotweekexp.TextColor = Colors.Black
 	Activity.AddView(txttotweekexp, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
@@ -61,6 +62,10 @@ Sub BuildScreen
 	y = y + labelH + 6dip
 	Dim histH As Int = 150dip
 	listexpenses.Initialize("")
+	listexpenses.SingleLineLayout.ItemHeight = 50dip
+	listexpenses.SingleLineLayout.Label.TextSize = 14
+	listexpenses.SingleLineLayout.Label.TextColor = Colors.Black
+	listexpenses.SingleLineLayout.Label.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
 	Activity.AddView(listexpenses, pad, y, contentW, histH)
 	y = y + histH + spacing * 2
 
@@ -99,6 +104,10 @@ Sub BuildScreen
 	Dim splitH As Int = h - y - pad
 	If splitH < 80dip Then splitH = 80dip
 	listsplit.Initialize("")
+	listsplit.SingleLineLayout.ItemHeight = 50dip
+	listsplit.SingleLineLayout.Label.TextSize = 14
+	listsplit.SingleLineLayout.Label.TextColor = Colors.Black
+	listsplit.SingleLineLayout.Label.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
 	Activity.AddView(listsplit, pad, y, contentW, splitH)
 
 	BuildSideNav
@@ -236,6 +245,7 @@ End Sub
 
 Private Sub btnmenu_Click
 	pnlmenu.Visible = True
+	pnlmenu.BringToFront
 End Sub
 
 Private Sub labelhome_Click
