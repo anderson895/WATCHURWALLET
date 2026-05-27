@@ -144,36 +144,104 @@ Private Sub lvGoals_ItemClick (Position As Int, Value As Object)
 	If Position < 0 Or Position >= goalIds.Size Then Return
 
 	Dim gid As Int = goalIds.Get(Position)
-	Dim choice As Int = Msgbox2("What do you want to do?", "Edit Goal", "Add Progress", "Delete", "Cancel", Null)
+	Dim first As Int = Msgbox2("What do you want to do?", "Edit Goal", "Edit", "Add Progress", "Delete", Null)
 
-	If choice = DialogResponse.POSITIVE Then
-		Dim inpdlg As InputDialog
-		inpdlg.Input = ""
-		Dim res As Int = inpdlg.Show("Amount to add to current progress:", "Add Progress", "OK", "Cancel", "", Null)
-		If res = DialogResponse.POSITIVE And IsNumber(inpdlg.Input) Then
-			Dim addAmt As Double = inpdlg.Input
+	If first = DialogResponse.POSITIVE Then
+		EditGoalDetails(gid)
+	Else If first = DialogResponse.NEGATIVE Then
+		AddGoalProgress(gid)
+	Else If first = DialogResponse.CANCEL Then
+		DeleteGoal(gid)
+	End If
+End Sub
 
-			Dim cat As String = GoalCategory(gid)
-			Dim today As String = DateTime.Date(DateTime.Now)
+Sub EditGoalDetails(gid As Int)
+	Dim oldCat As String = GoalCategory(gid)
+	Dim oldTarget As Double = GoalTarget(gid)
 
-			sql.ExecNonQuery2( _
-				"UPDATE tblgoal SET current_amount = current_amount + ? WHERE goal_id=? AND username=?", _
-				Array As Object(addAmt, gid, Main.usernamee))
+	Dim inpdlg As InputDialog
+	inpdlg.Input = oldCat
+	Dim res As Int = inpdlg.Show("New category name:", "Edit Category", "Next", "Cancel", "", Null)
+	If res <> DialogResponse.POSITIVE Then Return
+	Dim newCat As String = inpdlg.Input.Trim
+	If newCat = "" Then
+		ToastMessageShow("Category cannot be empty.", False)
+		Return
+	End If
 
-			sql.ExecNonQuery2( _
-				"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
-				Array As Object("Goal Progress - " & cat, addAmt, today, Main.usernamee))
+	inpdlg.Input = NumberFormat2(oldTarget, 1, 2, 2, False)
+	res = inpdlg.Show("New target amount:", "Edit Target", "Save", "Cancel", "", Null)
+	If res <> DialogResponse.POSITIVE Then Return
+	If IsNumber(inpdlg.Input) = False Then
+		ToastMessageShow("Target must be a number.", False)
+		Return
+	End If
+	Dim newTarget As Double = inpdlg.Input
+	If newTarget <= 0 Then
+		ToastMessageShow("Target must be greater than 0.", False)
+		Return
+	End If
 
-			ToastMessageShow("Progress added.", False)
-			LoadGoals
-		End If
-	Else If choice = DialogResponse.NEGATIVE Then
+	Dim today As String = DateTime.Date(DateTime.Now)
+
+	sql.ExecNonQuery2( _
+		"UPDATE tblgoal SET category=?, goal_amount=? WHERE goal_id=? AND username=?", _
+		Array As Object(newCat, newTarget, gid, Main.usernamee))
+
+	sql.ExecNonQuery2( _
+		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+		Array As Object("Goal Edited - " & newCat & " (was " & oldCat & " " & NumberFormat(oldTarget, 1, 2) & ")", newTarget, today, Main.usernamee))
+
+	ToastMessageShow("Goal updated.", False)
+	LoadGoals
+End Sub
+
+Sub AddGoalProgress(gid As Int)
+	Dim inpdlg As InputDialog
+	inpdlg.Input = ""
+	Dim res As Int = inpdlg.Show("Amount to add to current progress:", "Add Progress", "OK", "Cancel", "", Null)
+	If res = DialogResponse.POSITIVE And IsNumber(inpdlg.Input) Then
+		Dim addAmt As Double = inpdlg.Input
+
+		Dim cat As String = GoalCategory(gid)
+		Dim today As String = DateTime.Date(DateTime.Now)
+
 		sql.ExecNonQuery2( _
-			"DELETE FROM tblgoal WHERE goal_id=? AND username=?", _
-			Array As Object(gid, Main.usernamee))
-		ToastMessageShow("Goal deleted.", False)
+			"UPDATE tblgoal SET current_amount = current_amount + ? WHERE goal_id=? AND username=?", _
+			Array As Object(addAmt, gid, Main.usernamee))
+
+		sql.ExecNonQuery2( _
+			"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+			Array As Object("Goal Progress - " & cat, addAmt, today, Main.usernamee))
+
+		ToastMessageShow("Progress added.", False)
 		LoadGoals
 	End If
+End Sub
+
+Sub DeleteGoal(gid As Int)
+	Dim confirm As Int = Msgbox2("Delete this goal permanently?", "Confirm Delete", "Yes", "", "No", Null)
+	If confirm <> DialogResponse.POSITIVE Then Return
+
+	sql.ExecNonQuery2( _
+		"DELETE FROM tblgoal WHERE goal_id=? AND username=?", _
+		Array As Object(gid, Main.usernamee))
+	ToastMessageShow("Goal deleted.", False)
+	LoadGoals
+End Sub
+
+Sub GoalTarget(gid As Int) As Double
+	Dim c As Cursor
+	c = sql.ExecQuery2( _
+		"SELECT goal_amount FROM tblgoal WHERE goal_id=? AND username=?", _
+		Array As String(gid, Main.usernamee))
+	Dim t As Double = 0
+	If c.RowCount > 0 Then
+		c.Position = 0
+		t = c.GetDouble2(0)
+	End If
+	c.Close
+	Return t
 End Sub
 
 Sub GoalCategory(gid As Int) As String

@@ -148,15 +148,76 @@ End Sub
 Private Sub lvExpenses_ItemClick (Position As Int, Value As Object)
 	If Position < 0 Or Position >= expenseIds.Size Then Return
 
-	Dim res As Int = Msgbox2("Delete this expense?", "Confirm", "Yes", "", "No", Null)
-	If res = DialogResponse.POSITIVE Then
-		Dim eid As Int = expenseIds.Get(Position)
+	Dim eid As Int = expenseIds.Get(Position)
+	Dim choice As Int = Msgbox2("What do you want to do?", "Edit Expense", "Edit Amount", "Delete", "Cancel", Null)
+
+	If choice = DialogResponse.POSITIVE Then
+		Dim oldAmt As Double = GetExpenseAmount(eid)
+		Dim oldCat As String = GetExpenseCategory(eid)
+
+		Dim inpdlg As InputDialog
+		inpdlg.Input = NumberFormat2(oldAmt, 1, 2, 2, False)
+		Dim res As Int = inpdlg.Show("New amount for " & oldCat & ":", "Edit Amount", "Save", "Cancel", "", Null)
+
+		If res = DialogResponse.POSITIVE Then
+			If IsNumber(inpdlg.Input) = False Then
+				ToastMessageShow("Amount must be a number.", False)
+				Return
+			End If
+			Dim newAmt As Double = inpdlg.Input
+			If newAmt <= 0 Then
+				ToastMessageShow("Amount must be greater than 0.", False)
+				Return
+			End If
+
+			Dim today As String = DateTime.Date(DateTime.Now)
+
+			sql.ExecNonQuery2( _
+				"UPDATE tblexpenses SET amount=? WHERE expense_id=? AND username=?", _
+				Array As Object(newAmt, eid, Main.usernamee))
+
+			sql.ExecNonQuery2( _
+				"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
+				Array As Object("Expense Edited - " & oldCat & " (was " & NumberFormat(oldAmt, 1, 2) & ")", newAmt, today, Main.usernamee))
+
+			ToastMessageShow("Expense updated.", False)
+			LoadExpenses
+		End If
+	Else If choice = DialogResponse.NEGATIVE Then
 		sql.ExecNonQuery2( _
 			"DELETE FROM tblexpenses WHERE expense_id=? AND username=?", _
 			Array As Object(eid, Main.usernamee))
 		ToastMessageShow("Expense deleted.", False)
 		LoadExpenses
 	End If
+End Sub
+
+Sub GetExpenseAmount(eid As Int) As Double
+	Dim c As Cursor
+	c = sql.ExecQuery2( _
+		"SELECT amount FROM tblexpenses WHERE expense_id=? AND username=?", _
+		Array As String(eid, Main.usernamee))
+	Dim amt As Double = 0
+	If c.RowCount > 0 Then
+		c.Position = 0
+		amt = c.GetDouble2(0)
+	End If
+	c.Close
+	Return amt
+End Sub
+
+Sub GetExpenseCategory(eid As Int) As String
+	Dim c As Cursor
+	c = sql.ExecQuery2( _
+		"SELECT category FROM tblexpenses WHERE expense_id=? AND username=?", _
+		Array As String(eid, Main.usernamee))
+	Dim cat As String = ""
+	If c.RowCount > 0 Then
+		c.Position = 0
+		cat = c.GetString2(0)
+	End If
+	c.Close
+	Return cat
 End Sub
 
 Private Sub btnback_Click
