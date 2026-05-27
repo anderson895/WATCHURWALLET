@@ -221,6 +221,7 @@ Sub LoadExpenses
 	c.Close
 
 	txttotweekexp.Text = NumberFormat2(Total, 1, 2, 2, False)
+	txtsplitbill.Text = NumberFormat2(Total, 1, 2, 2, False)
 End Sub
 
 Sub LoadSplits
@@ -306,9 +307,10 @@ Private Sub btnevensplit_Click
 		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
 		Array As Object("Split - " & Category & " (" & Persons & " pax)", Share, today, Main.usernamee))
 
-	ToastMessageShow("Bill successfully split.", False)
+	Msgbox("Total Bill: " & NumberFormat2(TotalBill, 1, 2, 2, False) & CRLF & _
+		"Persons: " & Persons & CRLF & _
+		"Share per person: " & NumberFormat2(Share, 1, 2, 2, False), "Split Result")
 
-	txtsplitbill.Text = ""
 	txtsplitwith.Text = ""
 	LoadSplits
 End Sub
