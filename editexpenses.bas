@@ -136,7 +136,7 @@ Sub LoadExpenses
 		Dim eid As Int = c.GetInt2(0)
 		expenseIds.Add(eid)
 		lvExpenses.AddSingleLine( _
-			c.GetString2(1) & " - " & NumberFormat(c.GetDouble2(2), 1, 2) & " (" & c.GetString2(3) & ")")
+			c.GetString2(1) & " - " & NumberFormat2(c.GetDouble2(2), 1, 2, 2, False) & " (" & c.GetString2(3) & ")")
 	Next
 	c.Close
 
@@ -178,7 +178,7 @@ Private Sub lvExpenses_ItemClick (Position As Int, Value As Object)
 
 			sql.ExecNonQuery2( _
 				"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
-				Array As Object("Expense Edited - " & oldCat & " (was " & NumberFormat(oldAmt, 1, 2) & ")", newAmt, today, Main.usernamee))
+				Array As Object("Expense Edited - " & oldCat & " (was " & NumberFormat2(oldAmt, 1, 2, 2, False) & ")", newAmt, today, Main.usernamee))
 
 			ToastMessageShow("Expense updated.", False)
 			LoadExpenses

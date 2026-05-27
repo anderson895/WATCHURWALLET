@@ -106,7 +106,7 @@ Sub UpdateHeader
 	spent = c.GetDouble2(0)
 	c.Close
 
-	lbluserbudget.Text = Main.usernamee & CRLF & "Balance: " & NumberFormat(allowance - spent, 1, 2)
+	lbluserbudget.Text = Main.usernamee & CRLF & "Balance: " & NumberFormat2(allowance - spent, 1, 2, 2, False)
 End Sub
 
 Private Sub btnLogout_Click

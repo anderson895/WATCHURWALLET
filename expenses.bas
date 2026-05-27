@@ -216,11 +216,11 @@ Sub LoadExpenses
 		Dim amt As Double = c.GetDouble2(1)
 		Dim d As String = c.GetString2(2)
 		Total = Total + amt
-		listexpenses.AddSingleLine(cat & " - " & NumberFormat(amt, 1, 2) & " (" & d & ")")
+		listexpenses.AddSingleLine(cat & " - " & NumberFormat2(amt, 1, 2, 2, False) & " (" & d & ")")
 	Next
 	c.Close
 
-	txttotweekexp.Text = NumberFormat(Total, 1, 2)
+	txttotweekexp.Text = NumberFormat2(Total, 1, 2, 2, False)
 End Sub
 
 Sub LoadSplits
@@ -233,8 +233,8 @@ Sub LoadSplits
 		c.Position = i
 		listsplit.AddSingleLine( _
 			c.GetString2(0) & " - " & c.GetInt2(1) & " Person - " & _
-			NumberFormat(c.GetDouble2(2), 1, 2) & " - " & _
-			NumberFormat(c.GetDouble2(3), 1, 2) & " each")
+			NumberFormat2(c.GetDouble2(2), 1, 2, 2, False) & " - " & _
+			NumberFormat2(c.GetDouble2(3), 1, 2, 2, False) & " each")
 	Next
 	c.Close
 End Sub

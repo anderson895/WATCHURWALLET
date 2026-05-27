@@ -289,7 +289,7 @@ Private Sub btnsetallowance_Click
 	End Try
 
 	LoadHistory
-	ToastMessageShow("Allowance Set: " & NumberFormat(allowanceAmount, 1, 2), False)
+	ToastMessageShow("Allowance Set: " & NumberFormat2(allowanceAmount, 1, 2, 2, False), False)
 	EditText1.Text = ""
 End Sub
 
@@ -318,7 +318,7 @@ Sub LoadHistory
 		For i = 0 To c1.RowCount - 1
 			c1.Position = i
 			ListView1.AddSingleLine( _
-				c1.GetString2(0) & ": " & NumberFormat(c1.GetDouble2(1), 1, 2) & " on " & c1.GetString2(2))
+				c1.GetString2(0) & ": " & NumberFormat2(c1.GetDouble2(1), 1, 2, 2, False) & " on " & c1.GetString2(2))
 		Next
 		c1.Close
 	Catch

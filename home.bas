@@ -342,9 +342,9 @@ Sub ReloadFromDB
 
 	Balance = Allowance - TotalSpent
 
-	txtallowance.Text = NumberFormat(Allowance, 1, 2)
-	txtspent.Text = NumberFormat(TotalSpent, 1, 2)
-	txtbalance.Text = NumberFormat(Balance, 1, 2)
+	txtallowance.Text = NumberFormat2(Allowance, 1, 2, 2, False)
+	txtspent.Text = NumberFormat2(TotalSpent, 1, 2, 2, False)
+	txtbalance.Text = NumberFormat2(Balance, 1, 2, 2, False)
 
 	ExpenseList.Clear
 	CategoryList.Clear

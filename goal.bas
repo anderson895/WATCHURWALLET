@@ -206,7 +206,7 @@ Private Sub btnaddgoal_Click
 		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
 		Array As Object("Goal Set - " & category, target, today, Main.usernamee))
 
-	ToastMessageShow("Goal Added: " & category & " - " & NumberFormat(target, 1, 2), False)
+	ToastMessageShow("Goal Added: " & category & " - " & NumberFormat2(target, 1, 2, 2, False), False)
 
 	txtgoalcategory1.Text = ""
 	txtaddedgoal1.Text = ""
@@ -226,7 +226,7 @@ Sub LoadGoals
 		Dim curAmt As Double = c.GetDouble2(2)
 
 		txtgoalcategory1.Text = cat
-		txtaddedgoal1.Text = NumberFormat(goalAmt, 1, 2)
+		txtaddedgoal1.Text = NumberFormat2(goalAmt, 1, 2, 2, False)
 
 		If goalAmt > 0 Then
 			Dim pct As Double = (curAmt / goalAmt) * 100

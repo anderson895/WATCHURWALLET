@@ -131,7 +131,7 @@ Sub LoadGoals
 		Dim gid As Int = c.GetInt2(0)
 		goalIds.Add(gid)
 		lvGoals.AddSingleLine( _
-			c.GetString2(1) & " - " & NumberFormat(c.GetDouble2(3), 1, 2) & " / " & NumberFormat(c.GetDouble2(2), 1, 2))
+			c.GetString2(1) & " - " & NumberFormat2(c.GetDouble2(3), 1, 2, 2, False) & " / " & NumberFormat2(c.GetDouble2(2), 1, 2, 2, False))
 	Next
 	c.Close
 
@@ -190,7 +190,7 @@ Sub EditGoalDetails(gid As Int)
 
 	sql.ExecNonQuery2( _
 		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
-		Array As Object("Goal Edited - " & newCat & " (was " & oldCat & " " & NumberFormat(oldTarget, 1, 2) & ")", newTarget, today, Main.usernamee))
+		Array As Object("Goal Edited - " & newCat & " (was " & oldCat & " " & NumberFormat2(oldTarget, 1, 2, 2, False) & ")", newTarget, today, Main.usernamee))
 
 	ToastMessageShow("Goal updated.", False)
 	LoadGoals
