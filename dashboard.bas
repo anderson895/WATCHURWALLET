@@ -14,33 +14,21 @@ Sub Process_Globals
 End Sub
 
 Sub Globals
-	Private btnLogout As Button
 	Private lbluserbudget As Label
-	Private btnaccount As Button
-	Private btnExportDB As Button
-	Private lblDBPath As Label
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	sql = Main.sql
-	Activity.LoadLayout("dashboardlayout")
-
-	btnExportDB.Initialize("btnExportDB")
-	lblDBPath.Initialize("")
-
-	MakeResponsive
+	BuildScreen
 End Sub
 
-Sub MakeResponsive
+Sub BuildScreen
+	Activity.RemoveAllViews
 	Activity.Color = Colors.White
-	TagGlobals
-	HoistTaggedToActivity
-	HideExtras
 
 	Dim w As Int = 100%x
 	Dim h As Int = 100%y
 	Dim pad As Int = 16dip
-	Dim spacing As Int = 12dip
 	Dim btnH As Int = 50dip
 	Dim contentW As Int = w - pad * 2
 	Dim primary As Int = Colors.RGB(0, 150, 136)
@@ -48,10 +36,7 @@ Sub MakeResponsive
 
 	Dim y As Int = pad + 20dip
 
-	lbluserbudget.Left = pad
-	lbluserbudget.Top = y
-	lbluserbudget.Width = contentW
-	lbluserbudget.Height = 60dip
+	lbluserbudget.Initialize("")
 	lbluserbudget.TextSize = 18
 	lbluserbudget.TextColor = primary
 	lbluserbudget.Typeface = Typeface.DEFAULT_BOLD
@@ -59,68 +44,34 @@ Sub MakeResponsive
 	Dim cd As ColorDrawable
 	cd.Initialize2(cardBG, 12dip, 0, cardBG)
 	lbluserbudget.Background = cd
+	Activity.AddView(lbluserbudget, pad, y, contentW, 70dip)
 
 	Dim centerY As Int = h / 2 - btnH / 2
 	Dim gap As Int = 12dip
 	Dim halfW As Int = (contentW - gap) / 2
 
-	btnaccount.Left = pad
-	btnaccount.Top = centerY
-	btnaccount.Width = halfW
-	btnaccount.Height = btnH
-	StyleButton(btnaccount, "Account", primary)
+	Dim btnAccount As Button
+	btnAccount.Initialize("btnaccount")
+	StyleButton(btnAccount, "Account", primary)
+	Activity.AddView(btnAccount, pad, centerY, halfW, btnH)
 
-	btnLogout.Left = pad + halfW + gap
-	btnLogout.Top = centerY
-	btnLogout.Width = halfW
-	btnLogout.Height = btnH
+	Dim btnLogout As Button
+	btnLogout.Initialize("btnLogout")
 	StyleButton(btnLogout, "Logout", Colors.RGB(200, 60, 60))
+	Activity.AddView(btnLogout, pad + halfW + gap, centerY, halfW, btnH)
 
-	btnExportDB.Text = "Export Database"
+	Dim btnExportDB As Button
+	btnExportDB.Initialize("btnExportDB")
 	StyleButton(btnExportDB, "Export Database", Colors.RGB(40, 120, 180))
 	Activity.AddView(btnExportDB, pad, h - pad - btnH, contentW, btnH)
 
+	Dim lblDBPath As Label
+	lblDBPath.Initialize("")
 	lblDBPath.Text = "DB: " & File.Combine(File.DirInternal, "saddbb.db")
 	lblDBPath.TextSize = 10
 	lblDBPath.TextColor = Colors.Gray
 	lblDBPath.Gravity = Gravity.CENTER
 	Activity.AddView(lblDBPath, pad, h - pad - btnH - 20dip, contentW, 18dip)
-End Sub
-
-Sub TagGlobals
-	btnLogout.Tag = "g"
-	lbluserbudget.Tag = "g"
-	btnaccount.Tag = "g"
-End Sub
-
-Sub HideExtras
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim t As String = "" & v.Tag
-		If t <> "g" Then v.Visible = False
-	Next
-End Sub
-
-Sub HoistTaggedToActivity
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim vt As String = "" & v.Tag
-		If v Is Panel And vt <> "g" Then
-			Dim p As Panel = v
-			For j = p.NumberOfViews - 1 To 0 Step -1
-				Dim child As View = p.GetView(j)
-				Dim ct As String = "" & child.Tag
-				If ct = "g" Then
-					Dim cx As Int = child.Left + p.Left
-					Dim cy As Int = child.Top + p.Top
-					Dim cw As Int = child.Width
-					Dim ch As Int = child.Height
-					child.RemoveView
-					Activity.AddView(child, cx, cy, cw, ch)
-				End If
-			Next
-		End If
-	Next
 End Sub
 
 Sub StyleButton(btn As Button, text As String, color As Int)

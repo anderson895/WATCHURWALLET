@@ -14,8 +14,6 @@ Sub Process_Globals
 End Sub
 
 Sub Globals
-	Private EditText1 As EditText
-	Private ListView1 As ListView
 	Private txtfname As EditText
 	Private txtlname As EditText
 	Private txtusername As EditText
@@ -23,18 +21,14 @@ Sub Globals
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
-	Activity.LoadLayout("laymyacc")
 	sql = Main.sql
-
+	BuildScreen
 	LoadAccountInfo
-	MakeResponsive
 End Sub
 
-Sub MakeResponsive
+Sub BuildScreen
+	Activity.RemoveAllViews
 	Activity.Color = Colors.White
-	TagGlobals
-	HoistTaggedToActivity
-	HideExtras
 
 	Dim w As Int = 100%x
 	Dim pad As Int = 16dip
@@ -44,32 +38,40 @@ Sub MakeResponsive
 	Dim btnH As Int = 48dip
 	Dim contentW As Int = w - pad * 2
 	Dim primary As Int = Colors.RGB(0, 150, 136)
-	Dim cardBG As Int = Colors.RGB(225, 240, 240)
+	Dim cardBG As Int = Colors.RGB(235, 245, 245)
 
 	Dim y As Int = pad
 
 	AddBackButton(pad, y, primary)
-	AddHeaderText("My Account", pad + 56dip, y, contentW - 56dip, 44dip, primary, 20)
+	AddTitle("My Account", pad + 56dip, y, contentW - 56dip, primary)
 	y = y + 50dip + spacing * 2
 
 	AddHeaderLabel("Username", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(txtusername, pad, y, contentW, ctrlH, "", cardBG)
+	txtusername.Initialize("txtusername")
+	StyleInputEditText(txtusername, "", cardBG)
+	Activity.AddView(txtusername, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("First Name", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(txtfname, pad, y, contentW, ctrlH, "", cardBG)
+	txtfname.Initialize("txtfname")
+	StyleInputEditText(txtfname, "", cardBG)
+	Activity.AddView(txtfname, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("Last Name", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(txtlname, pad, y, contentW, ctrlH, "", cardBG)
+	txtlname.Initialize("txtlname")
+	StyleInputEditText(txtlname, "", cardBG)
+	Activity.AddView(txtlname, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("Email", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(txtemail, pad, y, contentW, ctrlH, "", cardBG)
+	txtemail.Initialize("txtemail")
+	StyleInputEditText(txtemail, "", cardBG)
+	Activity.AddView(txtemail, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
 	Dim btnSave As Button
@@ -84,47 +86,6 @@ Sub MakeResponsive
 	Activity.AddView(btnLogout, pad, y, contentW, btnH)
 End Sub
 
-Sub TagGlobals
-	EditText1.Tag = "g"
-	ListView1.Tag = "g"
-	txtfname.Tag = "g"
-	txtlname.Tag = "g"
-	txtusername.Tag = "g"
-	txtemail.Tag = "g"
-End Sub
-
-Sub HideExtras
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim t As String = "" & v.Tag
-		If t <> "g" Then v.Visible = False
-	Next
-	EditText1.Visible = False
-	ListView1.Visible = False
-End Sub
-
-Sub HoistTaggedToActivity
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim vt As String = "" & v.Tag
-		If v Is Panel And vt <> "g" Then
-			Dim p As Panel = v
-			For j = p.NumberOfViews - 1 To 0 Step -1
-				Dim child As View = p.GetView(j)
-				Dim ct As String = "" & child.Tag
-				If ct = "g" Then
-					Dim cx As Int = child.Left + p.Left
-					Dim cy As Int = child.Top + p.Top
-					Dim cw As Int = child.Width
-					Dim ch As Int = child.Height
-					child.RemoveView
-					Activity.AddView(child, cx, cy, cw, ch)
-				End If
-			Next
-		End If
-	Next
-End Sub
-
 Sub AddBackButton(x As Int, y As Int, color As Int)
 	Dim btn As Button
 	btn.Initialize("btnback")
@@ -133,6 +94,16 @@ Sub AddBackButton(x As Int, y As Int, color As Int)
 	btn.TextColor = color
 	btn.Color = Colors.White
 	Activity.AddView(btn, x, y, 44dip, 44dip)
+End Sub
+
+Sub AddTitle(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 20
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 44dip)
 End Sub
 
 Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
@@ -145,23 +116,12 @@ Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
 	Activity.AddView(lbl, x, y, w, 22dip)
 End Sub
 
-Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
-	Dim lbl As Label
-	lbl.Initialize("")
-	lbl.Text = text
-	lbl.TextSize = sz
-	lbl.TextColor = color
-	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, h)
-End Sub
-
-Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
-	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+Sub StyleInputEditText(et As EditText, hint As String, bg As Int)
 	et.Hint = hint
 	et.TextSize = 15
 	et.TextColor = Colors.Black
 	Dim cd As ColorDrawable
-	cd.Initialize2(bg, 10dip, 0, bg)
+	cd.Initialize2(bg, 10dip, 1dip, Colors.LightGray)
 	et.Background = cd
 	et.SingleLine = True
 	et.Padding = Array As Int(14dip, 0, 14dip, 0)

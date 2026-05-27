@@ -15,35 +15,24 @@ End Sub
 
 Sub Globals
 	Private pnlmenu As Panel
-	Private Button1 As Button
 	Private lblfullname As Label
 	Private lblemail As Label
 	Private lblusername As Label
-	Private btneditexpenses As Button
 	Private ListView1 As ListView
 	Private EditText1 As EditText
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	sql = Main.sql
-
-	Activity.LoadLayout("layaccount")
-	pnlmenu.LoadLayout("laymenu")
-	pnlmenu.Visible = False
-	lblfullname.Text = Main.fname & " " & Main.lname
-	lblusername.Text = Main.usernamee
-	lblemail.Text = Main.email
-	MakeResponsive
-	AddExportButtonToMenu
+	BuildScreen
 End Sub
 
-Sub MakeResponsive
+Sub BuildScreen
+	Activity.RemoveAllViews
 	Activity.Color = Colors.White
-	TagGlobals
-	HoistTaggedToActivity
-	HideExtras
 
 	Dim w As Int = 100%x
+	Dim h As Int = 100%y
 	Dim pad As Int = 16dip
 	Dim spacing As Int = 8dip
 	Dim labelH As Int = 22dip
@@ -51,25 +40,40 @@ Sub MakeResponsive
 	Dim btnH As Int = 44dip
 	Dim contentW As Int = w - pad * 2
 	Dim primary As Int = Colors.RGB(0, 150, 136)
-	Dim cardBG As Int = Colors.RGB(225, 240, 240)
+	Dim cardBG As Int = Colors.RGB(235, 245, 245)
 
 	Dim y As Int = pad
 
 	AddMenuButton(pad, y, primary)
-	AddHeaderText("Account", pad + 56dip, y, contentW - 56dip - 50dip, 44dip, primary, 20)
+	AddTitle("Account", pad + 56dip, y, contentW - 56dip - 50dip, primary, 20)
 	AddEditProfileButton(w - pad - 44dip, y, primary)
 	y = y + 50dip + spacing * 2
 
-	StyleLabelCard(lblfullname, pad, y, contentW, ctrlH, cardBG, Colors.Black, 16, True)
+	lblfullname.Initialize("")
+	lblfullname.Text = Main.fname & " " & Main.lname
+	StyleLabelCard(lblfullname, cardBG, Colors.Black, 16, True)
+	Activity.AddView(lblfullname, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
-	StyleLabelCard(lblusername, pad, y, contentW, 36dip, Colors.White, Colors.DarkGray, 13, False)
+
+	lblusername.Initialize("")
+	lblusername.Text = Main.usernamee
+	StyleLabelCard(lblusername, Colors.White, Colors.DarkGray, 13, False)
+	Activity.AddView(lblusername, pad, y, contentW, 36dip)
 	y = y + 36dip + spacing
-	StyleLabelCard(lblemail, pad, y, contentW, 36dip, Colors.White, Colors.DarkGray, 13, False)
+
+	lblemail.Initialize("")
+	lblemail.Text = Main.email
+	StyleLabelCard(lblemail, Colors.White, Colors.DarkGray, 13, False)
+	Activity.AddView(lblemail, pad, y, contentW, 36dip)
 	y = y + 36dip + spacing * 2
 
 	AddHeaderLabel("Set Allowance", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-	StyleInputEditText(EditText1, pad, y, contentW * 0.62, ctrlH, "0.00", cardBG)
+
+	EditText1.Initialize("EditText1")
+	StyleInputEditText(EditText1, "0.00", cardBG)
+	EditText1.InputType = EditText1.INPUT_TYPE_DECIMAL_NUMBERS
+	Activity.AddView(EditText1, pad, y, contentW * 0.62, ctrlH)
 
 	Dim btnSet As Button
 	btnSet.Initialize("btnsetallowance")
@@ -80,72 +84,41 @@ Sub MakeResponsive
 	AddHeaderLabel("History", pad, y, contentW, primary)
 	y = y + labelH + 6dip
 
-	Dim btnRowY As Int = 100%y - pad - btnH
-	Dim editH As Int = btnH
+	Dim btnRowY As Int = h - pad - btnH
 	Dim editGap As Int = 8dip
-	Dim lvH As Int = btnRowY - y - editH - editGap - spacing
+	Dim lvH As Int = btnRowY - y - spacing
 	If lvH < 100dip Then lvH = 100dip
 
-	ListView1.Left = pad
-	ListView1.Top = y
-	ListView1.Width = contentW
-	ListView1.Height = lvH
+	ListView1.Initialize("")
+	Activity.AddView(ListView1, pad, y, contentW, lvH)
 
-	Dim editsY As Int = y + lvH + spacing
-
-	btneditexpenses.Left = pad
-	btneditexpenses.Top = editsY
-	btneditexpenses.Width = (contentW - editGap) / 2
-	btneditexpenses.Height = editH
-	StyleButton(btneditexpenses, "Edit Expenses", primary)
+	Dim btnEditExp As Button
+	btnEditExp.Initialize("btneditexpenses")
+	StyleButton(btnEditExp, "Edit Expenses", primary)
+	Activity.AddView(btnEditExp, pad, btnRowY, (contentW - editGap) / 2, btnH)
 
 	Dim btnEditGoals As Button
 	btnEditGoals.Initialize("btneditgoals")
 	StyleButton(btnEditGoals, "Edit Goals", primary)
-	Activity.AddView(btnEditGoals, pad + (contentW - editGap) / 2 + editGap, editsY, (contentW - editGap) / 2, editH)
+	Activity.AddView(btnEditGoals, pad + (contentW - editGap) / 2 + editGap, btnRowY, (contentW - editGap) / 2, btnH)
 
-	pnlmenu.Width = 70%x
-	pnlmenu.Height = 100%y
+	BuildSideNav(primary)
 End Sub
 
-Sub TagGlobals
-	lblfullname.Tag = "g"
-	lblemail.Tag = "g"
-	lblusername.Tag = "g"
-	btneditexpenses.Tag = "g"
-	ListView1.Tag = "g"
-	EditText1.Tag = "g"
-	pnlmenu.Tag = "g"
-End Sub
+Sub BuildSideNav(primary As Int)
+	pnlmenu.Initialize("")
+	pnlmenu.Color = Colors.White
+	Activity.AddView(pnlmenu, 0, 0, 70%x, 100%y)
+	pnlmenu.LoadLayout("laymenu")
+	pnlmenu.Visible = False
 
-Sub HideExtras
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim t As String = "" & v.Tag
-		If t <> "g" Then v.Visible = False
-	Next
-End Sub
-
-Sub HoistTaggedToActivity
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim vt As String = "" & v.Tag
-		If v Is Panel And vt <> "g" Then
-			Dim p As Panel = v
-			For j = p.NumberOfViews - 1 To 0 Step -1
-				Dim child As View = p.GetView(j)
-				Dim ct As String = "" & child.Tag
-				If ct = "g" Then
-					Dim cx As Int = child.Left + p.Left
-					Dim cy As Int = child.Top + p.Top
-					Dim cw As Int = child.Width
-					Dim ch As Int = child.Height
-					child.RemoveView
-					Activity.AddView(child, cx, cy, cw, ch)
-				End If
-			Next
-		End If
-	Next
+	Dim btn As Button
+	btn.Initialize("ExportDB")
+	btn.Text = "Export DB"
+	btn.TextSize = 14
+	btn.TextColor = Colors.White
+	btn.Color = Colors.RGB(40, 120, 180)
+	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
 End Sub
 
 Sub AddMenuButton(x As Int, y As Int, color As Int)
@@ -168,28 +141,27 @@ Sub AddEditProfileButton(x As Int, y As Int, color As Int)
 	Activity.AddView(btn, x, y, 44dip, 44dip)
 End Sub
 
-Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
-	Dim lbl As Label
-	lbl.Initialize("")
-	lbl.Text = text
-	lbl.TextSize = 15
-	lbl.TextColor = color
-	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, 22dip)
-End Sub
-
-Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
+Sub AddTitle(text As String, x As Int, y As Int, w As Int, color As Int, sz As Int)
 	Dim lbl As Label
 	lbl.Initialize("")
 	lbl.Text = text
 	lbl.TextSize = sz
 	lbl.TextColor = color
 	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, h)
+	Activity.AddView(lbl, x, y, w, 44dip)
 End Sub
 
-Sub StyleLabelCard(lbl As Label, x As Int, y As Int, w As Int, h As Int, bg As Int, txtColor As Int, sz As Int, bold As Boolean)
-	lbl.Left = x : lbl.Top = y : lbl.Width = w : lbl.Height = h
+Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 14
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub StyleLabelCard(lbl As Label, bg As Int, txtColor As Int, sz As Int, bold As Boolean)
 	lbl.TextSize = sz
 	lbl.TextColor = txtColor
 	If bold Then lbl.Typeface = Typeface.DEFAULT_BOLD
@@ -205,13 +177,12 @@ Sub StyleLabelCard(lbl As Label, x As Int, y As Int, w As Int, h As Int, bg As I
 	lbl.Gravity = Gravity.CENTER_VERTICAL + Gravity.LEFT
 End Sub
 
-Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
-	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+Sub StyleInputEditText(et As EditText, hint As String, bg As Int)
 	et.Hint = hint
 	et.TextSize = 15
 	et.TextColor = Colors.Black
 	Dim cd As ColorDrawable
-	cd.Initialize2(bg, 10dip, 0, bg)
+	cd.Initialize2(bg, 10dip, 1dip, Colors.LightGray)
 	et.Background = cd
 	et.SingleLine = True
 	et.Padding = Array As Int(14dip, 0, 14dip, 0)
@@ -224,16 +195,6 @@ Sub StyleButton(btn As Button, text As String, color As Int)
 	Dim cd As ColorDrawable
 	cd.Initialize2(color, 12dip, 0, color)
 	btn.Background = cd
-End Sub
-
-Sub AddExportButtonToMenu
-	Dim btn As Button
-	btn.Initialize("ExportDB")
-	btn.Text = "Export DB"
-	btn.TextSize = 14
-	btn.TextColor = Colors.White
-	btn.Color = Colors.RGB(40, 120, 180)
-	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
 End Sub
 
 Private Sub ExportDB_Click

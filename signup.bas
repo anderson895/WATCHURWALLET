@@ -15,7 +15,6 @@ End Sub
 Sub Globals
 	Private txtUser As EditText
 	Private txtPass As EditText
-	Private btnCreate As Button
 	Private txtemail As EditText
 	Private txtfname As EditText
 	Private txtlname As EditText
@@ -25,15 +24,12 @@ Sub Activity_Create(FirstTime As Boolean)
 	If FirstTime Then
 		sql.Initialize(File.DirInternal, "saddbb.db", False)
 	End If
-	Activity.LoadLayout("SignupLayout")
-	MakeResponsive
+	BuildScreen
 End Sub
 
-Sub MakeResponsive
+Sub BuildScreen
+	Activity.RemoveAllViews
 	Activity.Color = Colors.White
-	TagGlobals
-	HoistTaggedToActivity
-	HideExtras
 
 	Dim w As Int = 100%x
 	Dim pad As Int = 24dip
@@ -56,76 +52,49 @@ Sub MakeResponsive
 
 	AddHeaderLabel("Username", cardX, y, cardW, primary)
 	y = y + labelH + 4dip
-	StyleInputEditText(txtUser, cardX, y, cardW, ctrlH, "", cardBG)
+	txtUser.Initialize("txtUser")
+	StyleInputEditText(txtUser, "", cardBG)
+	Activity.AddView(txtUser, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("Password", cardX, y, cardW, primary)
 	y = y + labelH + 4dip
-	StyleInputEditText(txtPass, cardX, y, cardW, ctrlH, "", cardBG)
+	txtPass.Initialize("txtPass")
+	StyleInputEditText(txtPass, "", cardBG)
 	txtPass.PasswordMode = True
+	Activity.AddView(txtPass, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("Email", cardX, y, cardW, primary)
 	y = y + labelH + 4dip
-	StyleInputEditText(txtemail, cardX, y, cardW, ctrlH, "", cardBG)
+	txtemail.Initialize("txtemail")
+	StyleInputEditText(txtemail, "", cardBG)
+	Activity.AddView(txtemail, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("First Name", cardX, y, cardW, primary)
 	y = y + labelH + 4dip
-	StyleInputEditText(txtfname, cardX, y, cardW, ctrlH, "", cardBG)
+	txtfname.Initialize("txtfname")
+	StyleInputEditText(txtfname, "", cardBG)
+	Activity.AddView(txtfname, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing
 
 	AddHeaderLabel("Last Name", cardX, y, cardW, primary)
 	y = y + labelH + 4dip
-	StyleInputEditText(txtlname, cardX, y, cardW, ctrlH, "", cardBG)
+	txtlname.Initialize("txtlname")
+	StyleInputEditText(txtlname, "", cardBG)
+	Activity.AddView(txtlname, cardX, y, cardW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
-	btnCreate.Left = cardX : btnCreate.Top = y : btnCreate.Width = cardW : btnCreate.Height = btnH
+	Dim btnCreate As Button
+	btnCreate.Initialize("btnCreate")
 	StyleButton(btnCreate, "Create Account", primary)
+	Activity.AddView(btnCreate, cardX, y, cardW, btnH)
 End Sub
 
 Sub MinInt(a As Int, b As Int) As Int
 	If a < b Then Return a
 	Return b
-End Sub
-
-Sub TagGlobals
-	txtUser.Tag = "g"
-	txtPass.Tag = "g"
-	btnCreate.Tag = "g"
-	txtemail.Tag = "g"
-	txtfname.Tag = "g"
-	txtlname.Tag = "g"
-End Sub
-
-Sub HideExtras
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim t As String = "" & v.Tag
-		If t <> "g" Then v.Visible = False
-	Next
-End Sub
-
-Sub HoistTaggedToActivity
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim vt As String = "" & v.Tag
-		If v Is Panel And vt <> "g" Then
-			Dim p As Panel = v
-			For j = p.NumberOfViews - 1 To 0 Step -1
-				Dim child As View = p.GetView(j)
-				Dim ct As String = "" & child.Tag
-				If ct = "g" Then
-					Dim cx As Int = child.Left + p.Left
-					Dim cy As Int = child.Top + p.Top
-					Dim cw As Int = child.Width
-					Dim ch As Int = child.Height
-					child.RemoveView
-					Activity.AddView(child, cx, cy, cw, ch)
-				End If
-			Next
-		End If
-	Next
 End Sub
 
 Sub AddBackButton(x As Int, y As Int, color As Int)
@@ -159,13 +128,12 @@ Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
 	Activity.AddView(lbl, x, y, w, 22dip)
 End Sub
 
-Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
-	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+Sub StyleInputEditText(et As EditText, hint As String, bg As Int)
 	et.Hint = hint
 	et.TextSize = 15
 	et.TextColor = Colors.Black
 	Dim cd As ColorDrawable
-	cd.Initialize2(bg, 10dip, 0, bg)
+	cd.Initialize2(bg, 10dip, 1dip, Colors.LightGray)
 	et.Background = cd
 	et.SingleLine = True
 	et.Padding = Array As Int(14dip, 0, 14dip, 0)

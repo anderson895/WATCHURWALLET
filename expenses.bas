@@ -15,40 +15,25 @@ End Sub
 
 Sub Globals
 	Private pnlmenu As Panel
-	Private btnmenu As Button
-
 	Private txttotweekexp As EditText
 	Private listexpenses As ListView
-
 	Private txtsplitbill As EditText
 	Private spinnergroup As Spinner
-	Private btnevensplit As Button
 	Private listsplit As ListView
 	Private txtsplitwith As EditText
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	sql = Main.sql
-	Activity.LoadLayout("layexpenses")
-
-	pnlmenu.LoadLayout("laymenu")
-	pnlmenu.Visible = False
-
-	txttotweekexp.Enabled = False
-
-	LoadSpinnerCategories
-
-	MakeResponsive
-	AddExportButtonToMenu
+	BuildScreen
 End Sub
 
-Sub MakeResponsive
+Sub BuildScreen
+	Activity.RemoveAllViews
 	Activity.Color = Colors.White
-	TagGlobals
-	HoistTaggedToActivity
-	HideExtras
 
 	Dim w As Int = 100%x
+	Dim h As Int = 100%y
 	Dim pad As Int = 16dip
 	Dim spacing As Int = 10dip
 	Dim labelH As Int = 22dip
@@ -60,108 +45,99 @@ Sub MakeResponsive
 
 	Dim y As Int = pad
 
-	btnmenu.Left = pad
-	btnmenu.Top = y
-	btnmenu.Width = 44dip
-	btnmenu.Height = 44dip
-	btnmenu.Text = Chr(0x2630)
-	btnmenu.TextSize = 22
-	btnmenu.TextColor = primary
-	btnmenu.Color = Colors.White
-
-	AddHeaderText("Expenses", pad + 56dip, y, contentW - 56dip, 44dip, primary, 20)
+	AddMenuButton(pad, y, primary)
+	AddTitle("Expenses", pad + 56dip, y, contentW - 56dip, primary)
 	y = y + 50dip + spacing
 
 	AddHeaderLabel("Total Spent", pad, y, contentW, primary)
 	y = y + labelH + 4dip
-	StyleCardEditText(txttotweekexp, pad, y, contentW, ctrlH, cardBG)
+	txttotweekexp.Initialize("")
+	StyleCardEditText(txttotweekexp, cardBG)
+	txttotweekexp.Enabled = False
+	Activity.AddView(txttotweekexp, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing * 2
 
 	AddHeaderLabel("Expense History", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-
 	Dim histH As Int = 150dip
-	listexpenses.Left = pad
-	listexpenses.Top = y
-	listexpenses.Width = contentW
-	listexpenses.Height = histH
+	listexpenses.Initialize("")
+	Activity.AddView(listexpenses, pad, y, contentW, histH)
 	y = y + histH + spacing * 2
 
 	AddHeaderLabel("Split a Bill", pad, y, contentW, primary)
 	y = y + labelH + spacing
 
-	spinnergroup.Left = pad
-	spinnergroup.Top = y
-	spinnergroup.Width = contentW
-	spinnergroup.Height = ctrlH
+	spinnergroup.Initialize("")
+	spinnergroup.Add("Foods & Groceries")
+	spinnergroup.Add("Transpo")
+	spinnergroup.Add("Rent")
+	spinnergroup.Add("School Supplies")
+	spinnergroup.Add("School Projects")
+	Activity.AddView(spinnergroup, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
-	StyleInputEditText(txtsplitbill, pad, y, contentW, ctrlH, "Total Bill", cardBG)
+	txtsplitbill.Initialize("")
+	StyleInputEditText(txtsplitbill, "Total Bill", cardBG)
+	txtsplitbill.InputType = txtsplitbill.INPUT_TYPE_DECIMAL_NUMBERS
+	Activity.AddView(txtsplitbill, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
-	StyleInputEditText(txtsplitwith, pad, y, contentW, ctrlH, "Number of Persons", cardBG)
+	txtsplitwith.Initialize("")
+	StyleInputEditText(txtsplitwith, "Number of Persons", cardBG)
+	txtsplitwith.InputType = txtsplitwith.INPUT_TYPE_NUMBERS
+	Activity.AddView(txtsplitwith, pad, y, contentW, ctrlH)
 	y = y + ctrlH + spacing
 
-	btnevensplit.Width = 60%x
-	btnevensplit.Left = (w - btnevensplit.Width) / 2
-	btnevensplit.Top = y
-	btnevensplit.Height = btnH
-	StyleButton(btnevensplit, "Split Evenly", primary)
+	Dim btnSplit As Button
+	btnSplit.Initialize("btnevensplit")
+	StyleButton(btnSplit, "Split Evenly", primary)
+	Activity.AddView(btnSplit, (w - 60%x) / 2, y, 60%x, btnH)
 	y = y + btnH + spacing * 2
 
 	AddHeaderLabel("Split History", pad, y, contentW, primary)
 	y = y + labelH + 6dip
-	Dim splitH As Int = 100%y - y - pad
+	Dim splitH As Int = h - y - pad
 	If splitH < 80dip Then splitH = 80dip
-	listsplit.Left = pad
-	listsplit.Top = y
-	listsplit.Width = contentW
-	listsplit.Height = splitH
+	listsplit.Initialize("")
+	Activity.AddView(listsplit, pad, y, contentW, splitH)
 
-	pnlmenu.Width = 70%x
-	pnlmenu.Height = 100%y
+	BuildSideNav
 End Sub
 
-Sub TagGlobals
-	btnmenu.Tag = "g"
-	txttotweekexp.Tag = "g"
-	listexpenses.Tag = "g"
-	txtsplitbill.Tag = "g"
-	spinnergroup.Tag = "g"
-	btnevensplit.Tag = "g"
-	listsplit.Tag = "g"
-	txtsplitwith.Tag = "g"
-	pnlmenu.Tag = "g"
+Sub BuildSideNav
+	pnlmenu.Initialize("")
+	pnlmenu.Color = Colors.White
+	Activity.AddView(pnlmenu, 0, 0, 70%x, 100%y)
+	pnlmenu.LoadLayout("laymenu")
+	pnlmenu.Visible = False
+
+	Dim btn As Button
+	btn.Initialize("ExportDB")
+	btn.Text = "Export DB"
+	btn.TextSize = 14
+	btn.TextColor = Colors.White
+	btn.Color = Colors.RGB(40, 120, 180)
+	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
 End Sub
 
-Sub HideExtras
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim t As String = "" & v.Tag
-		If t <> "g" Then v.Visible = False
-	Next
+Sub AddMenuButton(x As Int, y As Int, color As Int)
+	Dim btn As Button
+	btn.Initialize("btnmenu")
+	btn.Text = Chr(0x2630)
+	btn.TextSize = 22
+	btn.TextColor = color
+	btn.Color = Colors.White
+	Activity.AddView(btn, x, y, 44dip, 44dip)
 End Sub
 
-Sub HoistTaggedToActivity
-	For i = 0 To Activity.NumberOfViews - 1
-		Dim v As View = Activity.GetView(i)
-		Dim vt As String = "" & v.Tag
-		If v Is Panel And vt <> "g" Then
-			Dim p As Panel = v
-			For j = p.NumberOfViews - 1 To 0 Step -1
-				Dim child As View = p.GetView(j)
-				Dim ct As String = "" & child.Tag
-				If ct = "g" Then
-					Dim cx As Int = child.Left + p.Left
-					Dim cy As Int = child.Top + p.Top
-					Dim cw As Int = child.Width
-					Dim ch As Int = child.Height
-					child.RemoveView
-					Activity.AddView(child, cx, cy, cw, ch)
-				End If
-			Next
-		End If
-	Next
+Sub AddTitle(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 20
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	Activity.AddView(lbl, x, y, w, 44dip)
 End Sub
 
 Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
@@ -174,18 +150,7 @@ Sub AddHeaderLabel(text As String, x As Int, y As Int, w As Int, color As Int)
 	Activity.AddView(lbl, x, y, w, 22dip)
 End Sub
 
-Sub AddHeaderText(text As String, x As Int, y As Int, w As Int, h As Int, color As Int, sz As Int)
-	Dim lbl As Label
-	lbl.Initialize("")
-	lbl.Text = text
-	lbl.TextSize = sz
-	lbl.TextColor = color
-	lbl.Typeface = Typeface.DEFAULT_BOLD
-	Activity.AddView(lbl, x, y, w, h)
-End Sub
-
-Sub StyleCardEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, bg As Int)
-	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+Sub StyleCardEditText(et As EditText, bg As Int)
 	et.TextSize = 16
 	et.TextColor = Colors.Black
 	Dim cd As ColorDrawable
@@ -195,13 +160,12 @@ Sub StyleCardEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, bg
 	et.Padding = Array As Int(14dip, 0, 14dip, 0)
 End Sub
 
-Sub StyleInputEditText(et As EditText, x As Int, y As Int, w As Int, h As Int, hint As String, bg As Int)
-	et.Left = x : et.Top = y : et.Width = w : et.Height = h
+Sub StyleInputEditText(et As EditText, hint As String, bg As Int)
 	et.Hint = hint
 	et.TextSize = 15
 	et.TextColor = Colors.Black
 	Dim cd As ColorDrawable
-	cd.Initialize2(bg, 10dip, 0, bg)
+	cd.Initialize2(bg, 10dip, 1dip, Colors.LightGray)
 	et.Background = cd
 	et.SingleLine = True
 	et.Padding = Array As Int(14dip, 0, 14dip, 0)
@@ -265,27 +229,8 @@ Sub LoadSplits
 	c.Close
 End Sub
 
-Sub AddExportButtonToMenu
-	Dim btn As Button
-	btn.Initialize("ExportDB")
-	btn.Text = "Export DB"
-	btn.TextSize = 14
-	btn.TextColor = Colors.White
-	btn.Color = Colors.RGB(40, 120, 180)
-	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
-End Sub
-
 Private Sub ExportDB_Click
 	Starter.ExportDBAndShowDialog(True)
-End Sub
-
-Sub LoadSpinnerCategories
-	spinnergroup.Clear
-	spinnergroup.Add("Foods & Groceries")
-	spinnergroup.Add("Transpo")
-	spinnergroup.Add("Rent")
-	spinnergroup.Add("School Supplies")
-	spinnergroup.Add("School Projects")
 End Sub
 
 Private Sub btnmenu_Click
