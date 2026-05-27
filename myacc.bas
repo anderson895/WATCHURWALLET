@@ -33,6 +33,7 @@ End Sub
 Sub MakeResponsive
 	Activity.Color = Colors.White
 	TagGlobals
+	HoistTaggedToActivity
 	HideExtras
 
 	Dim w As Int = 100%x
@@ -100,6 +101,28 @@ Sub HideExtras
 	Next
 	EditText1.Visible = False
 	ListView1.Visible = False
+End Sub
+
+Sub HoistTaggedToActivity
+	For i = 0 To Activity.NumberOfViews - 1
+		Dim v As View = Activity.GetView(i)
+		Dim vt As String = "" & v.Tag
+		If v Is Panel And vt <> "g" Then
+			Dim p As Panel = v
+			For j = p.NumberOfViews - 1 To 0 Step -1
+				Dim child As View = p.GetView(j)
+				Dim ct As String = "" & child.Tag
+				If ct = "g" Then
+					Dim cx As Int = child.Left + p.Left
+					Dim cy As Int = child.Top + p.Top
+					Dim cw As Int = child.Width
+					Dim ch As Int = child.Height
+					child.RemoveView
+					Activity.AddView(child, cx, cy, cw, ch)
+				End If
+			Next
+		End If
+	Next
 End Sub
 
 Sub AddBackButton(x As Int, y As Int, color As Int)
