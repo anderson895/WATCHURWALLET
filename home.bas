@@ -1,4 +1,4 @@
-﻿B4A=true
+B4A=true
 Group=Default Group
 ModulesStructureVersion=1
 Type=Activity
@@ -17,7 +17,7 @@ End Sub
 
 Sub Globals
 	Private pnlmenu As Panel
-	Private btnmenu As Button
+	Private pnlcontent As Panel
 	Private txtstudentsname As EditText
 	Private txtallowance As EditText
 	Private txtdate As EditText
@@ -25,9 +25,7 @@ Sub Globals
 	Private txtbalance As EditText
 	Private txtamountexpenses As EditText
 	Private spinnercategory As Spinner
-	Private btnacceptexpenses As Button
 	Private txtamountgoal As EditText
-	Private btnacceptgoal As Button
 	Private txtgoal As EditText
 
 	Dim TotalSpent As Double = 0
@@ -37,69 +35,222 @@ End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	sql = Main.sql
-	Activity.LoadLayout("layhome")
-	pnlmenu.LoadLayout("laymenu")
-	pnlmenu.Visible = False
-	AddExportButtonToMenu
+	If ExpenseList.IsInitialized = False Then ExpenseList.Initialize
+	If CategoryList.IsInitialized = False Then CategoryList.Initialize
+	BuildScreen
+End Sub
 
-	If ExpenseList.IsInitialized = False Then
-		ExpenseList.Initialize
-	End If
+Sub BuildScreen
+	Activity.RemoveAllViews
+	Activity.Color = Colors.White
 
-	If CategoryList.IsInitialized = False Then
-		CategoryList.Initialize
-	End If
+	pnlcontent.Initialize("")
+	Activity.AddView(pnlcontent, 0, 0, 100%x, 100%y)
 
-	spinnercategory.Clear
+	Dim w As Int = 100%x
+	Dim pad As Int = 16dip
+	Dim spacing As Int = 10dip
+	Dim labelH As Int = 22dip
+	Dim ctrlH As Int = 44dip
+	Dim btnH As Int = 48dip
+	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
+
+	Dim y As Int = pad
+
+	Dim btnMenu As Button
+	btnMenu.Initialize("btnmenu")
+	btnMenu.Text = Chr(0x2630)
+	btnMenu.TextSize = 22
+	btnMenu.TextColor = primary
+	btnMenu.Color = Colors.White
+	pnlcontent.AddView(btnMenu, pad, y, 44dip, 44dip)
+
+	txtstudentsname.Initialize("")
+	txtstudentsname.Text = Main.fname & " " & Main.lname
+	txtstudentsname.TextSize = 18
+	txtstudentsname.TextColor = Colors.Black
+	txtstudentsname.Background = Null
+	txtstudentsname.Enabled = False
+	pnlcontent.AddView(txtstudentsname, pad + 56dip, y + 4dip, contentW - 56dip, 36dip)
+	y = y + 50dip + spacing
+
+	DateTime.DateFormat = "MMMM dd, yyyy"
+	txtdate.Initialize("")
+	txtdate.Text = DateTime.Date(DateTime.Now)
+	txtdate.TextSize = 13
+	txtdate.TextColor = Colors.DarkGray
+	txtdate.Background = Null
+	txtdate.Enabled = False
+	pnlcontent.AddView(txtdate, pad, y, contentW, 28dip)
+	y = y + 28dip + spacing
+
+	AddLabel("Allowance", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	txtallowance.Initialize("")
+	StyleCardEditText(txtallowance, cardBG)
+	pnlcontent.AddView(txtallowance, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing
+
+	AddLabel("Spent", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	txtspent.Initialize("")
+	StyleCardEditText(txtspent, cardBG)
+	txtspent.Enabled = False
+	txtspent.TextColor = Colors.Black
+	pnlcontent.AddView(txtspent, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing
+
+	AddLabel("Balance", pad, y, contentW, primary)
+	y = y + labelH + 4dip
+	txtbalance.Initialize("")
+	StyleCardEditText(txtbalance, cardBG)
+	txtbalance.Enabled = False
+	txtbalance.TextColor = Colors.Black
+	pnlcontent.AddView(txtbalance, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing * 2
+
+	AddLabel("Add Expenses", pad, y, contentW, primary)
+	y = y + labelH + spacing
+
+	spinnercategory.Initialize("")
 	spinnercategory.Add("Foods & Groceries")
 	spinnercategory.Add("Transpo")
 	spinnercategory.Add("Rent")
 	spinnercategory.Add("School Supplies")
 	spinnercategory.Add("School Projects")
+	pnlcontent.AddView(spinnercategory, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing
 
-	DateTime.DateFormat = "MMMM dd, yyyy"
-	txtdate.Text = DateTime.Date(DateTime.Now)
+	txtamountexpenses.Initialize("")
+	StyleInputEditText(txtamountexpenses, "Amount", cardBG)
+	txtamountexpenses.InputType = txtamountexpenses.INPUT_TYPE_DECIMAL_NUMBERS
+	pnlcontent.AddView(txtamountexpenses, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing
 
-	txtspent.Enabled = False
-	txtbalance.Enabled = False
-	txtdate.Enabled = False
+	Dim btnAcceptExp As Button
+	btnAcceptExp.Initialize("btnacceptexpenses")
+	StyleButton(btnAcceptExp, "Accept", primary)
+	pnlcontent.AddView(btnAcceptExp, (100%x - 60%x) / 2, y, 60%x, btnH)
+	y = y + btnH + spacing * 2
 
-	txtallowance.Background = Null
-	txtamountexpenses.Background = Null
-	txtgoal.Background = Null
-	txtamountgoal.Background = Null
+	AddLabel("Add to Goals", pad, y, contentW, primary)
+	y = y + labelH + spacing
 
-	txtstudentsname.Text = Main.fname & " " & Main.lname
+	txtgoal.Initialize("")
+	StyleInputEditText(txtgoal, "Goal name", cardBG)
+	pnlcontent.AddView(txtgoal, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing
+
+	txtamountgoal.Initialize("")
+	StyleInputEditText(txtamountgoal, "Amount", cardBG)
+	txtamountgoal.InputType = txtamountgoal.INPUT_TYPE_DECIMAL_NUMBERS
+	pnlcontent.AddView(txtamountgoal, pad, y, contentW, ctrlH)
+	y = y + ctrlH + spacing
+
+	Dim btnAcceptGoal As Button
+	btnAcceptGoal.Initialize("btnacceptgoal")
+	StyleButton(btnAcceptGoal, "Add Goal", primary)
+	pnlcontent.AddView(btnAcceptGoal, (100%x - 60%x) / 2, y, 60%x, btnH)
+
+	BuildSideNav
+End Sub
+
+Sub AddLabel(text As String, x As Int, y As Int, w As Int, color As Int)
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = text
+	lbl.TextSize = 15
+	lbl.TextColor = color
+	lbl.Typeface = Typeface.DEFAULT_BOLD
+	pnlcontent.AddView(lbl, x, y, w, 22dip)
+End Sub
+
+Sub BuildSideNav
+	pnlmenu.Initialize("")
+	pnlmenu.Color = Colors.White
+	Activity.AddView(pnlmenu, 0, 0, 70%x, 100%y)
+	pnlmenu.LoadLayout("laymenu")
+	pnlmenu.Visible = False
+
+	Dim btn As Button
+	btn.Initialize("ExportDB")
+	btn.Text = "Export DB"
+	btn.TextSize = 14
+	btn.TextColor = Colors.White
+	btn.Color = Colors.RGB(40, 120, 180)
+	pnlmenu.AddView(btn, 16dip, 100%y - 70dip, pnlmenu.Width - 32dip, 48dip)
+End Sub
+
+Sub StyleCardEditText(et As EditText, bg As Int)
+	et.TextSize = 16
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 0, bg)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleInputEditText(et As EditText, hint As String, bg As Int)
+	et.Hint = hint
+	et.TextSize = 15
+	et.TextColor = Colors.Black
+	Dim cd As ColorDrawable
+	cd.Initialize2(bg, 10dip, 1dip, Colors.LightGray)
+	et.Background = cd
+	et.SingleLine = True
+	et.Padding = Array As Int(14dip, 0, 14dip, 0)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub Activity_Resume
+	sql = Main.sql
 	ReloadFromDB
 End Sub
 
 Private Sub btnmenu_Click
+	pnlcontent.Visible = False
 	pnlmenu.Visible = True
 End Sub
 
 Private Sub labelhome_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 End Sub
 
 Private Sub labelexpenses_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(expenses)
 	Activity.Finish
 End Sub
 
 Private Sub labelgoal_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(goal)
 	Activity.Finish
 End Sub
 
 Private Sub labelaccount_Click
 	pnlmenu.Visible = False
+	pnlcontent.Visible = True
 	StartActivity(account)
 	Activity.Finish
+End Sub
+
+Private Sub ExportDB_Click
+	Starter.ExportDBAndShowDialog(True)
 End Sub
 
 Private Sub btnacceptexpenses_Click
@@ -107,35 +258,27 @@ Private Sub btnacceptexpenses_Click
 		ToastMessageShow("Please enter expense amount.", False)
 		Return
 	End If
-
 	If IsNumber(txtamountexpenses.Text) = False Then
 		ToastMessageShow("Numbers only.", False)
 		Return
 	End If
-
 	Dim Expense As Double = txtamountexpenses.Text
-
 	If Expense <= 0 Then
 		ToastMessageShow("Amount must be greater than 0.", False)
 		Return
 	End If
-
 	If Expense > Balance Then
 		ToastMessageShow("Not enough balance.", False)
 		Return
 	End If
-
 	Dim Category As String = spinnercategory.SelectedItem
 	Dim today As String = DateTime.Date(DateTime.Now)
-
 	sql.ExecNonQuery2( _
 		"INSERT INTO tblexpenses (username, category, amount, date) VALUES (?, ?, ?, ?)", _
 		Array As Object(Main.usernamee, Category, Expense, today))
-
 	sql.ExecNonQuery2( _
 		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
 		Array As Object("Expense - " & Category, Expense, today, Main.usernamee))
-
 	ToastMessageShow("Expense added to " & Category, False)
 	txtamountexpenses.Text = ""
 	ReloadFromDB
@@ -146,84 +289,39 @@ Private Sub btnacceptgoal_Click
 		ToastMessageShow("Please complete goal info.", False)
 		Return
 	End If
-
 	If IsNumber(txtamountgoal.Text) = False Then
 		ToastMessageShow("Goal amount must be a number.", False)
 		Return
 	End If
-
 	Dim target As Double = txtamountgoal.Text
 	If target <= 0 Then
 		ToastMessageShow("Goal amount must be greater than 0.", False)
 		Return
 	End If
-
 	Dim today As String = DateTime.Date(DateTime.Now)
-
 	sql.ExecNonQuery2( _
 		"INSERT INTO tblgoal (category, goal_amount, current_amount, username) VALUES (?, ?, ?, ?)", _
 		Array As Object(txtgoal.Text, target, 0, Main.usernamee))
-
 	sql.ExecNonQuery2( _
 		"INSERT INTO tbltransac (type, amount, date, username) VALUES (?, ?, ?, ?)", _
 		Array As Object("Goal Set - " & txtgoal.Text, target, today, Main.usernamee))
-
 	ToastMessageShow("Goal saved: " & txtgoal.Text, False)
 	txtgoal.Text = ""
 	txtamountgoal.Text = ""
 End Sub
 
-Private Sub txtallowance_TextChanged (Old As String, New As String)
-	' Display only; saving is done in account screen.
-	If New = "" Then
-		Return
-	End If
-End Sub
-
-Sub AddExportButtonToMenu
-	Dim btn As Button
-	btn.Initialize("ExportDB")
-	btn.Text = "Export DB"
-	btn.TextSize = 14
-	btn.TextColor = Colors.White
-	btn.Color = Colors.RGB(40, 120, 180)
-	pnlmenu.AddView(btn, 16dip, pnlmenu.Height - 70dip, pnlmenu.Width - 32dip, 48dip)
-End Sub
-
-Private Sub ExportDB_Click
-	Starter.ExportDBAndShowDialog(True)
-End Sub
-
 Sub ReloadFromDB
-	' Total allowance for this user.
 	Dim c As Cursor
-	c = sql.ExecQuery2( _
-		"SELECT IFNULL(SUM(amount),0) FROM tblallowance WHERE username=?", _
-		Array As String(Main.usernamee))
-	c.Position = 0
-	Allowance = c.GetDouble2(0)
-	c.Close
-
-	' Total expenses for this user.
-	c = sql.ExecQuery2( _
-		"SELECT IFNULL(SUM(amount),0) FROM tblexpenses WHERE username=?", _
-		Array As String(Main.usernamee))
-	c.Position = 0
-	TotalSpent = c.GetDouble2(0)
-	c.Close
-
+	c = sql.ExecQuery2("SELECT IFNULL(SUM(amount),0) FROM tblallowance WHERE username=?", Array As String(Main.usernamee))
+	c.Position = 0 : Allowance = c.GetDouble2(0) : c.Close
+	c = sql.ExecQuery2("SELECT IFNULL(SUM(amount),0) FROM tblexpenses WHERE username=?", Array As String(Main.usernamee))
+	c.Position = 0 : TotalSpent = c.GetDouble2(0) : c.Close
 	Balance = Allowance - TotalSpent
-
-	txtallowance.Text = NumberFormat(Allowance, 1, 2)
-	txtspent.Text = NumberFormat(TotalSpent, 1, 2)
-	txtbalance.Text = NumberFormat(Balance, 1, 2)
-
-	' Refresh in-memory lists for the expenses screen.
-	ExpenseList.Clear
-	CategoryList.Clear
-	c = sql.ExecQuery2( _
-		"SELECT category, amount FROM tblexpenses WHERE username=? ORDER BY expense_id DESC", _
-		Array As String(Main.usernamee))
+	txtallowance.Text = NumberFormat2(Allowance, 1, 2, 2, False)
+	txtspent.Text = NumberFormat2(TotalSpent, 1, 2, 2, False)
+	txtbalance.Text = NumberFormat2(Balance, 1, 2, 2, False)
+	ExpenseList.Clear : CategoryList.Clear
+	c = sql.ExecQuery2("SELECT category, amount FROM tblexpenses WHERE username=? ORDER BY expense_id DESC", Array As String(Main.usernamee))
 	For i = 0 To c.RowCount - 1
 		c.Position = i
 		CategoryList.Add(c.GetString2(0))

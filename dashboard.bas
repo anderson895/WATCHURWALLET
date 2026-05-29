@@ -14,27 +14,73 @@ Sub Process_Globals
 End Sub
 
 Sub Globals
-	Private btnLogout As Button
 	Private lbluserbudget As Label
-	Private btnaccount As Button
-	Private btnExportDB As Button
-	Private lblDBPath As Label
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	sql = Main.sql
-	Activity.LoadLayout("dashboardlayout")
+	BuildScreen
+End Sub
 
-	' Add Export DB button programmatically (no need to edit layout in Designer).
+Sub BuildScreen
+	Activity.RemoveAllViews
+	Activity.Color = Colors.White
+
+	Dim w As Int = 100%x
+	Dim h As Int = 100%y
+	Dim pad As Int = 16dip
+	Dim btnH As Int = 50dip
+	Dim contentW As Int = w - pad * 2
+	Dim primary As Int = Colors.RGB(0, 150, 136)
+	Dim cardBG As Int = Colors.RGB(225, 240, 240)
+
+	Dim y As Int = pad + 20dip
+
+	lbluserbudget.Initialize("")
+	lbluserbudget.TextSize = 18
+	lbluserbudget.TextColor = primary
+	lbluserbudget.Typeface = Typeface.DEFAULT_BOLD
+	lbluserbudget.Gravity = Gravity.CENTER
+	Dim cd As ColorDrawable
+	cd.Initialize2(cardBG, 12dip, 0, cardBG)
+	lbluserbudget.Background = cd
+	Activity.AddView(lbluserbudget, pad, y, contentW, 70dip)
+
+	Dim centerY As Int = h / 2 - btnH / 2
+	Dim gap As Int = 12dip
+	Dim halfW As Int = (contentW - gap) / 2
+
+	Dim btnAccount As Button
+	btnAccount.Initialize("btnaccount")
+	StyleButton(btnAccount, "Account", primary)
+	Activity.AddView(btnAccount, pad, centerY, halfW, btnH)
+
+	Dim btnLogout As Button
+	btnLogout.Initialize("btnLogout")
+	StyleButton(btnLogout, "Logout", Colors.RGB(200, 60, 60))
+	Activity.AddView(btnLogout, pad + halfW + gap, centerY, halfW, btnH)
+
+	Dim btnExportDB As Button
 	btnExportDB.Initialize("btnExportDB")
-	btnExportDB.Text = "Export Database"
-	btnExportDB.TextSize = 14
-	Activity.AddView(btnExportDB, 16dip, 100%y - 110dip, 100%x - 32dip, 44dip)
+	StyleButton(btnExportDB, "Export Database", Colors.RGB(40, 120, 180))
+	Activity.AddView(btnExportDB, pad, h - pad - btnH, contentW, btnH)
 
+	Dim lblDBPath As Label
 	lblDBPath.Initialize("")
-	lblDBPath.TextSize = 11
 	lblDBPath.Text = "DB: " & File.Combine(File.DirInternal, "saddbb.db")
-	Activity.AddView(lblDBPath, 16dip, 100%y - 60dip, 100%x - 32dip, 50dip)
+	lblDBPath.TextSize = 10
+	lblDBPath.TextColor = Colors.Gray
+	lblDBPath.Gravity = Gravity.CENTER
+	Activity.AddView(lblDBPath, pad, h - pad - btnH - 20dip, contentW, 18dip)
+End Sub
+
+Sub StyleButton(btn As Button, text As String, color As Int)
+	btn.Text = text
+	btn.TextColor = Colors.White
+	btn.TextSize = 16
+	Dim cd As ColorDrawable
+	cd.Initialize2(color, 12dip, 0, color)
+	btn.Background = cd
 End Sub
 
 Sub Activity_Resume
@@ -60,7 +106,7 @@ Sub UpdateHeader
 	spent = c.GetDouble2(0)
 	c.Close
 
-	lbluserbudget.Text = Main.usernamee & " - Balance: " & NumberFormat(allowance - spent, 1, 2)
+	lbluserbudget.Text = Main.usernamee & CRLF & "Balance: " & NumberFormat2(allowance - spent, 1, 2, 2, False)
 End Sub
 
 Private Sub btnLogout_Click
